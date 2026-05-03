@@ -6,209 +6,191 @@ import {
 } from "@tanstack/react-router";
 import { threads } from "@/components/threads";
 
-const navItems = [
-  { key: "inbox", label: "Inbox", glyph: "✶" },
-  { key: "drafts", label: "Drafts", glyph: "✎" },
-  { key: "archive", label: "Archive", glyph: "❖" },
-  { key: "keys", label: "Keys", glyph: "⚿" },
-];
+const initials = (name: string) =>
+  name
+    .split(" ")
+    .map((p) => p[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
 
 const RouteComponent = () => {
   const childMatches = useChildMatches();
   const hasOpenThread = childMatches.length > 0;
 
   return (
-    <div className="bg-paper text-ink grid h-dvh w-full grid-cols-1 overflow-hidden lg:grid-cols-[64px_340px_minmax(0,1fr)]">
-      <aside className="border-hairline bg-paper-2 hidden flex-col items-center justify-between border-r py-5 lg:flex">
-        <div className="flex flex-col items-center gap-6">
-          <Link
-            to="/"
-            className="border-ink/30 font-display text-ink hover:border-accent hover:text-accent grid h-9 w-9 place-items-center rounded-full border text-base italic transition-colors"
-          >
-            s
-          </Link>
-
-          <div className="bg-hairline h-px w-6" />
-
-          <nav className="flex flex-col items-center gap-3">
-            {navItems.map((item, i) => (
-              <button
-                key={item.key}
-                className={`group relative grid h-10 w-10 place-items-center transition-colors ${
-                  i === 0
-                    ? "text-ink"
-                    : "text-ink-faint hover:text-ink"
-                }`}
-                aria-label={item.label}
-                title={item.label}
-              >
-                <span className="font-display text-lg">{item.glyph}</span>
-                {i === 0 && (
-                  <span className="bg-accent absolute -left-0.5 top-1/2 h-5 w-0.5 -translate-y-1/2" />
-                )}
-              </button>
-            ))}
-          </nav>
-        </div>
-
-        <div className="flex flex-col items-center gap-4">
-          <button
-            className="text-ink-faint hover:text-ink grid h-10 w-10 place-items-center transition-colors"
-            aria-label="Settings"
-          >
-            <span className="font-display text-lg">⚙</span>
-          </button>
-          <span className="bg-ok h-1.5 w-1.5 rounded-full" title="Encrypted" />
-        </div>
-      </aside>
-
-      <section
-        className={`border-hairline flex flex-col border-r ${
+    <div className="bg-page text-ink grid h-dvh w-full grid-cols-1 overflow-hidden lg:grid-cols-[340px_minmax(0,1fr)]">
+      <aside
+        className={`border-line bg-surface flex flex-col border-r ${
           hasOpenThread ? "hidden lg:flex" : "flex"
         }`}
       >
-        <header className="border-hairline flex flex-col gap-4 border-b px-6 pt-6 pb-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-ink-faint font-mono text-[10px] tracking-[0.28em] uppercase">
-                — Inbox · 014
-              </p>
-              <h1 className="font-display mt-1 text-2xl tracking-tight">
-                Correspondents
-              </h1>
-            </div>
-            <button
-              className="group bg-ink text-paper border-ink hover:bg-paper hover:text-ink inline-flex items-center justify-center border p-2.5 transition-colors duration-200"
-              aria-label="Compose new"
-              title="Compose new"
-            >
-              <span className="font-display text-base leading-none">✎</span>
-            </button>
-          </div>
-
-          <label className="border-hairline focus-within:border-accent group flex items-center gap-2 border-b pb-2 transition-colors">
-            <span
-              aria-hidden
-              className="text-ink-faint font-display text-sm"
-            >
-              ⌕
+        <header className="flex items-center justify-between px-4 pt-5 pb-3">
+          <Link to="/" className="flex items-center gap-2">
+            <span className="bg-ink h-7 w-7 rounded-full" aria-hidden />
+            <span className="text-base font-semibold tracking-tight">
+              Sealed
             </span>
-            <input
-              type="search"
-              placeholder="Search by name or fingerprint…"
-              className="placeholder:text-ink-faint/70 w-full bg-transparent text-sm focus:outline-none"
-            />
-            <span className="text-ink-faint font-mono text-[10px] tracking-[0.18em] uppercase">
-              ⌘K
-            </span>
-          </label>
-
-          <div className="text-ink-faint flex items-center gap-3 font-mono text-[10px] tracking-[0.22em] uppercase">
-            <button className="text-ink underline decoration-accent underline-offset-[6px]">
-              All
-            </button>
-            <button className="hover:text-ink transition-colors">Unread</button>
-            <button className="hover:text-ink transition-colors">Pinned</button>
-            <span className="bg-hairline ml-auto h-px flex-1" />
-            <span>{threads.length}</span>
-          </div>
+          </Link>
+          <button
+            className="hover:bg-soft text-muted hover:text-ink grid h-9 w-9 place-items-center rounded-full transition-colors"
+            aria-label="New conversation"
+            title="New conversation"
+          >
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M12 5v14M5 12h14" />
+            </svg>
+          </button>
         </header>
 
-        <ul className="flex-1 overflow-y-auto">
+        <div className="px-4 pb-3">
+          <div className="bg-soft flex items-center gap-2 rounded-lg px-3 py-2">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="text-faint"
+            >
+              <circle cx="11" cy="11" r="7" />
+              <path d="m20 20-3.5-3.5" />
+            </svg>
+            <input
+              type="search"
+              placeholder="Search"
+              className="placeholder:text-faint w-full bg-transparent text-sm outline-none"
+            />
+          </div>
+        </div>
+
+        <ul className="flex-1 overflow-y-auto px-2 pb-4">
           {threads.map((t) => (
             <li key={t.id}>
               <Link
                 to="/chat/$friend_id"
                 params={{ friend_id: t.id }}
-                activeProps={{
-                  className:
-                    "bg-paper-3 border-l-accent",
-                }}
-                inactiveProps={{
-                  className: "border-l-transparent hover:bg-paper-2",
-                }}
-                className="border-hairline block border-b border-l-2 px-6 py-4 transition-colors"
+                activeProps={{ className: "bg-soft" }}
+                inactiveProps={{ className: "hover:bg-soft" }}
+                className="flex items-center gap-3 rounded-lg px-2.5 py-2.5 transition-colors"
               >
-                <div className="flex items-baseline justify-between gap-3">
-                  <h3 className="font-display text-ink truncate text-lg leading-tight tracking-tight">
-                    {t.name}
-                    {t.online && (
-                      <span
-                        className="bg-ok ml-2 inline-block h-1.5 w-1.5 -translate-y-0.5 rounded-full"
-                        aria-label="online"
-                      />
-                    )}
-                  </h3>
-                  <span className="text-ink-faint shrink-0 font-mono text-[10px] tracking-[0.18em] uppercase">
-                    {t.time}
-                  </span>
-                </div>
-                <p className="text-ink-muted mt-1.5 line-clamp-2 text-sm leading-snug">
-                  {t.excerpt}
-                </p>
-                <div className="mt-2 flex items-center justify-between">
-                  <span className="text-ink-faint font-mono text-[10px] tracking-wider">
-                    {t.fingerprint}
-                  </span>
-                  {t.unread > 0 && (
-                    <span className="bg-accent text-accent-ink inline-flex h-4 min-w-4 items-center justify-center px-1 font-mono text-[10px] tracking-wider">
-                      {t.unread}
+                <div className="relative shrink-0">
+                  <div className="bg-soft-2 grid h-10 w-10 place-items-center rounded-full">
+                    <span className="text-ink text-sm font-medium">
+                      {initials(t.name)}
                     </span>
+                  </div>
+                  {t.online && (
+                    <span
+                      className="bg-online border-surface absolute right-0 bottom-0 h-2.5 w-2.5 rounded-full border-2"
+                      aria-label="online"
+                    />
                   )}
+                </div>
+
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-baseline justify-between gap-2">
+                    <h3 className="text-ink truncate text-[15px] font-medium tracking-tight">
+                      {t.name}
+                    </h3>
+                    <span className="text-faint shrink-0 text-xs">
+                      {t.time}
+                    </span>
+                  </div>
+                  <div className="mt-0.5 flex items-center justify-between gap-2">
+                    <p
+                      className={`truncate text-sm ${
+                        t.unread > 0
+                          ? "text-ink font-medium"
+                          : "text-muted"
+                      }`}
+                    >
+                      {t.excerpt}
+                    </p>
+                    {t.unread > 0 && (
+                      <span className="bg-ink text-page inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full px-1.5 text-[11px] font-medium">
+                        {t.unread}
+                      </span>
+                    )}
+                  </div>
                 </div>
               </Link>
             </li>
           ))}
         </ul>
 
-        <footer className="border-hairline text-ink-faint flex items-center justify-between border-t px-6 py-3 font-mono text-[10px] tracking-[0.22em] uppercase">
-          <span className="flex items-center gap-2">
-            <span className="bg-ok inline-block h-1.5 w-1.5 rounded-full" />
-            Connected
-          </span>
-          <span>End-to-end</span>
+        <footer className="border-line flex items-center justify-between border-t px-4 py-3">
+          <div className="flex items-center gap-2.5">
+            <div className="bg-soft-2 grid h-8 w-8 place-items-center rounded-full">
+              <span className="text-ink text-xs font-medium">YOU</span>
+            </div>
+            <span className="text-ink text-sm font-medium">You</span>
+          </div>
+          <button
+            className="hover:bg-soft text-muted hover:text-ink grid h-8 w-8 place-items-center rounded-full transition-colors"
+            aria-label="Settings"
+            title="Settings"
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <circle cx="12" cy="12" r="3" />
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+            </svg>
+          </button>
         </footer>
-      </section>
+      </aside>
 
       <section
-        className={`relative flex flex-col ${
+        className={`flex min-w-0 flex-col ${
           hasOpenThread ? "flex" : "hidden lg:flex"
         }`}
       >
         {hasOpenThread ? (
           <Outlet />
         ) : (
-          <div className="relative flex flex-1 items-center justify-center px-6">
-            <div
-              aria-hidden
-              className="pointer-events-none absolute inset-0"
-              style={{
-                backgroundImage:
-                  "radial-gradient(40% 40% at 50% 40%, color-mix(in srgb, var(--c-accent) 10%, transparent), transparent 70%)",
-              }}
-            />
-            <div className="rise relative z-10 max-w-md text-center">
-              <div
-                aria-hidden
-                className="bg-accent text-accent-ink mx-auto mb-8 grid h-16 w-16 place-items-center rounded-full shadow-[0_0_0_1px_var(--c-accent),0_14px_40px_-14px_var(--c-accent)]"
-              >
-                <span className="font-display text-xl italic">s</span>
+          <div className="flex flex-1 items-center justify-center px-6">
+            <div className="max-w-sm text-center">
+              <div className="bg-soft mx-auto mb-5 grid h-14 w-14 place-items-center rounded-full">
+                <svg
+                  width="22"
+                  height="22"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="text-muted"
+                >
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                </svg>
               </div>
-              <p className="text-ink-faint font-mono text-[10px] tracking-[0.28em] uppercase">
-                — Awaiting correspondence
-              </p>
-              <h2 className="font-display text-ink mt-4 text-4xl leading-tight tracking-tight">
-                Select a thread <span className="italic">to begin.</span>
+              <h2 className="text-lg font-semibold tracking-tight">
+                Select a conversation
               </h2>
-              <p className="text-ink-muted mt-5 leading-relaxed">
-                Your conversations live here, sealed at the source. Pick a
-                correspondent on the left, or compose a new letter.
+              <p className="text-muted mt-1.5 text-sm leading-relaxed">
+                Choose someone from the list, or start a new chat to begin.
               </p>
-              <div className="text-ink-faint mt-8 flex items-center justify-center gap-3 font-mono text-[10px] tracking-[0.28em] uppercase">
-                <span className="bg-hairline h-px w-10" />
-                <span>Nothing leaves this device unencrypted</span>
-                <span className="bg-hairline h-px w-10" />
-              </div>
             </div>
           </div>
         )}

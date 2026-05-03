@@ -2,85 +2,71 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import Field from "@/components/Field";
 
 const RouteComponent = () => (
-  <div className="rise space-y-9">
-    <header className="space-y-3">
-      <p className="text-ink-faint font-mono text-[10px] tracking-[0.28em] uppercase">
-        <span className="text-accent">01</span>
-        <span className="mx-2">—</span>
-        <span>Return</span>
-      </p>
-      <h1 className="font-display text-ink text-4xl tracking-tight md:text-[2.75rem]">
-        Welcome <span className="italic">back.</span>
+  <div className="rise space-y-6">
+    <header className="space-y-2">
+      <h1 className="text-[26px] leading-tight font-semibold tracking-[-0.02em]">
+        Welcome back
       </h1>
-      <p className="text-ink-muted leading-relaxed">
-        Pick up the thread where you left it. Your keys are still where you put
-        them.
+      <p className="text-muted text-sm">
+        Sign in to continue to Sealed.
       </p>
     </header>
 
-    <form className="space-y-7" onSubmit={(e) => e.preventDefault()}>
+    <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
       <Field
         label="Email"
         name="email"
         type="email"
         autoComplete="email"
-        placeholder="name@correspondence.com"
+        placeholder="you@example.com"
         required
       />
 
-      <Field
-        label="Password"
-        name="password"
-        type="password"
-        autoComplete="current-password"
-        placeholder="••••••••••••"
-        hint="min 12"
-        required
-      />
-      {/*
-      <div className="flex items-center justify-between pt-1">
-        <label className="text-ink-muted hover:text-ink flex cursor-pointer items-center gap-2 transition-colors">
-          <input
-            type="checkbox"
-            className="border-hairline-strong accent-accent h-3.5 w-3.5 rounded-none border bg-transparent"
-          />
-          <span className="font-mono text-[11px] tracking-[0.16em] uppercase">
-            Stay signed in
-          </span>
-        </label>
-        <a
-          href="#"
-          className="decoration-hairline hover:decoration-accent hover:text-accent text-ink font-mono text-[11px] tracking-[0.16em] underline underline-offset-4 uppercase transition-colors"
-        >
-          Forgot it?
-        </a>
-      </div>*/}
+      <div className="space-y-1.5">
+        <div className="flex items-baseline justify-between">
+          <label
+            htmlFor="password"
+            className="text-ink text-sm font-medium tracking-tight"
+          >
+            Password
+          </label>
+          <a
+            href="#"
+            className="text-muted hover:text-ink text-xs transition-colors"
+          >
+            Forgot password?
+          </a>
+        </div>
+        <input
+          id="password"
+          name="password"
+          type="password"
+          autoComplete="current-password"
+          placeholder="••••••••"
+          required
+          className="border-line bg-surface placeholder:text-faint focus:border-ink/40 focus:ring-ink/10 block w-full rounded-lg border px-3.5 py-2.5 text-[15px] outline-none transition-[border-color,box-shadow] focus:ring-4"
+        />
+      </div>
 
       <button
         type="submit"
-        className="group bg-ink text-paper border-ink hover:bg-paper hover:text-ink relative inline-flex w-full items-center justify-between border px-6 py-4 transition-colors duration-200"
+        className="bg-ink text-page hover:bg-ink/90 active:scale-[0.99] mt-1 flex w-full items-center justify-center rounded-lg px-4 py-2.5 text-sm font-medium shadow-[0_1px_2px_rgba(20,20,24,0.18),0_4px_12px_-2px_rgba(20,20,24,0.2),inset_0_1px_0_rgba(255,255,255,0.08)] transition-[background-color,transform]"
       >
-        <span className="font-mono text-[11px] tracking-[0.28em] uppercase">
-          Open the door
-        </span>
-        <span
-          aria-hidden
-          className="font-display text-xl transition-transform duration-300 group-hover:translate-x-1"
-        >
-          →
-        </span>
+        Sign in
       </button>
     </form>
 
-    <p className="border-hairline text-ink-muted border-t pt-6 text-sm">
-      First time here?{" "}
-      <Link
-        to="/auth/signup"
-        className="text-ink decoration-hairline hover:decoration-accent hover:text-accent underline underline-offset-4 transition-colors"
-      >
-        Open an account →
-      </Link>
-    </p>
+    <div className="border-line relative flex items-center gap-3 border-t pt-5">
+      <p className="text-muted flex-1 text-center text-sm">
+        Don't have an account?{" "}
+        <Link
+          to="/auth/signup"
+          className="text-ink font-medium hover:underline"
+        >
+          Sign up
+        </Link>
+      </p>
+    </div>
   </div>
 );
 

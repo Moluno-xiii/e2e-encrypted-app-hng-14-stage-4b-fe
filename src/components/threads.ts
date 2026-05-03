@@ -9,7 +9,6 @@ export type Message = {
 export type Thread = {
   id: string;
   name: string;
-  fingerprint: string;
   excerpt: string;
   time: string;
   unread: number;
@@ -21,39 +20,37 @@ export const threads: Thread[] = [
   {
     id: "ada",
     name: "Ada Mercer",
-    fingerprint: "9f8a · 0c43 · e1bd",
-    excerpt:
-      "I read your last note three times. Tell me again — slowly — what you meant.",
-    time: "03:42",
+    excerpt: "What are you reading tonight?",
+    time: "3:42 AM",
     unread: 2,
     online: true,
     messages: [
       {
         id: "m1",
         fromSelf: false,
-        body: "I read your last note three times. Tell me again — slowly — what you meant by the word ‘later’.",
-        time: "03:42",
+        body: "Hey, did you see the place I sent yesterday?",
+        time: "3:39 AM",
         date: "Today",
       },
       {
         id: "m2",
         fromSelf: true,
-        body: "Later as in, after the rain stops. After the city forgets what it was angry about. After we both decide we'd rather not be careful.",
-        time: "03:46",
+        body: "Yeah, looks great. We should book it before the weekend.",
+        time: "3:42 AM",
         date: "Today",
       },
       {
         id: "m3",
         fromSelf: false,
-        body: "That is a lot of laters for one sentence. I will accept all of them.",
-        time: "03:48",
+        body: "Agreed. I'll handle it tomorrow morning.",
+        time: "3:43 AM",
         date: "Today",
       },
       {
         id: "m4",
         fromSelf: false,
         body: "What are you reading tonight?",
-        time: "03:49",
+        time: "3:44 AM",
         date: "Today",
       },
     ],
@@ -61,25 +58,23 @@ export const threads: Thread[] = [
   {
     id: "hugo",
     name: "Hugo Vellan",
-    fingerprint: "3b4f · 8e2c · 907a",
-    excerpt:
-      "The package arrived. Thank you for keeping the address quiet, as always.",
+    excerpt: "Thanks, got it. Talk tomorrow.",
     time: "Yesterday",
     unread: 0,
     online: false,
     messages: [
       {
         id: "m1",
-        fromSelf: false,
-        body: "The package arrived. Thank you for keeping the address quiet, as always.",
-        time: "21:14",
+        fromSelf: true,
+        body: "Sent you the files. Let me know if anything's missing.",
+        time: "9:14 PM",
         date: "Yesterday",
       },
       {
         id: "m2",
-        fromSelf: true,
-        body: "Of course. The post here forgets quickly. Hope it travelled well.",
-        time: "21:30",
+        fromSelf: false,
+        body: "Thanks, got it. Talk tomorrow.",
+        time: "9:30 PM",
         date: "Yesterday",
       },
     ],
@@ -87,9 +82,7 @@ export const threads: Thread[] = [
   {
     id: "june",
     name: "June Akiyama",
-    fingerprint: "e7d2 · c1b8 · a93f",
-    excerpt:
-      "Tomorrow then. Same time. Same line. Bring the book if you remember.",
+    excerpt: "Same time tomorrow? Bring the book.",
     time: "Mon",
     unread: 0,
     online: true,
@@ -97,8 +90,8 @@ export const threads: Thread[] = [
       {
         id: "m1",
         fromSelf: true,
-        body: "Tomorrow then. Same time. Same line. Bring the book if you remember.",
-        time: "18:02",
+        body: "Same time tomorrow? Bring the book.",
+        time: "6:02 PM",
         date: "Monday",
       },
     ],
@@ -106,8 +99,7 @@ export const threads: Thread[] = [
   {
     id: "iris",
     name: "Iris Holm",
-    fingerprint: "b1c9 · a8e7 · f203",
-    excerpt: "Can you say it again? Slowly. I want to write it down properly.",
+    excerpt: "Can you say that again? I want to write it down.",
     time: "Sun",
     unread: 1,
     online: false,
@@ -115,8 +107,8 @@ export const threads: Thread[] = [
       {
         id: "m1",
         fromSelf: false,
-        body: "Can you say it again? Slowly. I want to write it down properly.",
-        time: "11:08",
+        body: "Can you say that again? I want to write it down.",
+        time: "11:08 AM",
         date: "Sunday",
       },
     ],
@@ -124,9 +116,7 @@ export const threads: Thread[] = [
   {
     id: "noor",
     name: "Noor Adisa",
-    fingerprint: "4f8a · 7c91 · b3d2",
-    excerpt:
-      "I left the key under the loose tile. The one we agreed not to talk about.",
+    excerpt: "Found it, thanks!",
     time: "Apr 28",
     unread: 0,
     online: false,
@@ -134,16 +124,16 @@ export const threads: Thread[] = [
       {
         id: "m1",
         fromSelf: false,
-        body: "I left the key under the loose tile. The one we agreed not to talk about.",
-        time: "09:41",
-        date: "28 April",
+        body: "Left the spare key in the usual spot.",
+        time: "9:41 AM",
+        date: "April 28",
       },
       {
         id: "m2",
         fromSelf: true,
-        body: "Found. You're a wonder. The cat watched the whole thing with great suspicion.",
-        time: "10:02",
-        date: "28 April",
+        body: "Found it, thanks!",
+        time: "10:02 AM",
+        date: "April 28",
       },
     ],
   },

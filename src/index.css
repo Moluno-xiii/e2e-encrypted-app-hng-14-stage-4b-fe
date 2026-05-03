@@ -1,0 +1,189 @@
+@import "tailwindcss";
+
+html {
+  scroll-behavior: smooth;
+}
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+:root {
+  --c-page: #f7f7f4;
+  --c-surface: #ffffff;
+  --c-soft: #eeeeea;
+  --c-soft-2: #e0e0db;
+
+  --c-ink: #1a1a1d;
+  --c-muted: #6b6b71;
+  --c-faint: #a3a3a8;
+
+  --c-line: #e6e6e1;
+  --c-line-2: #d4d4cf;
+
+  --c-accent: #1a1a1d;
+  --c-online: #22c55e;
+  --c-danger: #ef4444;
+
+  --c-ring: rgba(26, 26, 29, 0.08);
+}
+
+[data-theme="dark"] {
+  --c-page: #0c0c0e;
+  --c-surface: #16161a;
+  --c-soft: #1f1f23;
+  --c-soft-2: #2a2a2e;
+
+  --c-ink: #fafaf9;
+  --c-muted: #a0a0a5;
+  --c-faint: #6b6b71;
+
+  --c-line: #2a2a2e;
+  --c-line-2: #3a3a3e;
+
+  --c-accent: #fafaf9;
+  --c-online: #22c55e;
+  --c-danger: #f87171;
+
+  --c-ring: rgba(250, 250, 249, 0.1);
+}
+
+@theme inline {
+  --color-page: var(--c-page);
+  --color-surface: var(--c-surface);
+  --color-soft: var(--c-soft);
+  --color-soft-2: var(--c-soft-2);
+
+  --color-ink: var(--c-ink);
+  --color-muted: var(--c-muted);
+  --color-faint: var(--c-faint);
+
+  --color-line: var(--c-line);
+  --color-line-2: var(--c-line-2);
+
+  --color-accent: var(--c-accent);
+  --color-online: var(--c-online);
+  --color-danger: var(--c-danger);
+
+  --font-sans: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, monospace;
+}
+
+@layer base {
+  html,
+  body {
+    background: var(--c-page);
+    color: var(--c-ink);
+  }
+
+  body {
+    font-family: var(--font-sans);
+    font-feature-settings: "ss01", "cv11";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background: var(--c-ink);
+    color: var(--c-page);
+  }
+
+  input,
+  textarea {
+    font: inherit;
+    color: inherit;
+  }
+
+  button {
+    font: inherit;
+  }
+
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--c-ink);
+    -webkit-box-shadow: 0 0 0 1000px var(--c-surface) inset;
+    caret-color: var(--c-ink);
+    transition: background-color 9999s ease-in-out 0s;
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.rise > * {
+  animation: rise 0.45s cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
+}
+.rise > *:nth-child(1) {
+  animation-delay: 0.04s;
+}
+.rise > *:nth-child(2) {
+  animation-delay: 0.1s;
+}
+.rise > *:nth-child(3) {
+  animation-delay: 0.16s;
+}
+.rise > *:nth-child(4) {
+  animation-delay: 0.22s;
+}
+.rise > *:nth-child(5) {
+  animation-delay: 0.28s;
+}
+.rise > *:nth-child(6) {
+  animation-delay: 0.34s;
+}
+
+.fade-in {
+  animation: fade 0.5s ease-out backwards;
+}
+
+.shadow-card {
+  box-shadow:
+    0 1px 2px rgba(20, 20, 24, 0.04),
+    0 8px 24px -12px rgba(20, 20, 24, 0.08),
+    0 24px 56px -24px rgba(20, 20, 24, 0.12);
+}
+
+.bg-grid {
+  background-image:
+    linear-gradient(to right, var(--c-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--c-line) 1px, transparent 1px);
+  background-size: 56px 56px;
+}
+
+.bg-grid-mask {
+  -webkit-mask-image: radial-gradient(
+    ellipse 60% 50% at 50% 50%,
+    #000 0%,
+    transparent 80%
+  );
+  mask-image: radial-gradient(
+    ellipse 60% 50% at 50% 50%,
+    #000 0%,
+    transparent 80%
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rise > *,
+  .fade-in {
+    animation: none;
+  }
+}

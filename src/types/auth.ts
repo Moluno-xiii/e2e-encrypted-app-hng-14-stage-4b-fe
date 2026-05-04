@@ -1,6 +1,6 @@
 type RefreshTokenResponse = {
   access_token: string;
-  tokey_type: string;
+  token_type: string;
   expires_in: number;
 };
 type AuthToken = {
@@ -11,7 +11,7 @@ type AuthToken = {
 type AuthSuccessType = {
   access_token: string;
   refresh_token: string;
-  tokeh_type: string;
+  token_type: string;
   expires_in: number;
   user: User;
 };

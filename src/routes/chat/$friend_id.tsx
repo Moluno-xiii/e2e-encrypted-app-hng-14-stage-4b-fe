@@ -1,5 +1,7 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { findThread, type Message } from "@/components/threads";
+import ThreadSkeleton from "./-components/ThreadSkeleton";
 
 const initials = (name: string) =>
   name
@@ -23,6 +25,16 @@ const RouteComponent = () => {
   const { friend_id } = Route.useParams();
   const thread = findThread(friend_id);
   if (!thread) throw notFound();
+
+  const [isLoadingThread, setIsLoadingThread] = useState(true);
+
+  useEffect(() => {
+    setIsLoadingThread(true);
+    const t = setTimeout(() => setIsLoadingThread(false), 400);
+    return () => clearTimeout(t);
+  }, [friend_id]);
+
+  if (isLoadingThread) return <ThreadSkeleton />;
 
   const groups = groupByDate(thread.messages);
 

@@ -46,20 +46,49 @@ const customTryCatch = async <T>({
   }
 };
 
+let isRefreshing = false;
+
+const buildAuthInit = (
+  method: FetchMethods,
+  options: Partial<RequestInit> | undefined,
+): RequestInit => ({
+  method,
+  headers: {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${authServiceInstance.getTokens().access_token}`,
+  },
+  ...options,
+});
+
 const authTryCatch = async <T>({
   url,
   method,
   options,
 }: CustomTryCatchDTO): Promise<SuccessResponse<T> | ErrorResponse> => {
   try {
-    const request = await fetch(url, {
-      method,
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${authServiceInstance.getTokens().access_token}`,
-      },
-      ...options,
-    });
+    const request = await fetch(url, buildAuthInit(method, options));
+
+    if (request.status === 401 && !isRefreshing) {
+      isRefreshing = true;
+      const refresh = await authServiceInstance.refreshToken();
+      isRefreshing = false;
+      if (!refresh.success) {
+        authServiceInstance.removeAuthTokens();
+        throw new Error(refresh.error);
+      }
+      authServiceInstance.setAuthTokens({
+        access_token: refresh.data.access_token,
+        refresh_token: authServiceInstance.getTokens().refresh_token,
+      });
+      const retry = await fetch(url, buildAuthInit(method, options));
+      if (!retry.ok) {
+        const errorText = await retry.text();
+        throw new Error(`Error ${retry.status}: ${errorText}`);
+      }
+      const response = (await retry.json()) as T;
+      return { success: true, error: null, data: response };
+    }
+
     if (!request.ok) {
       const errorText = await request.text();
       throw new Error(`Error ${request.status}: ${errorText}`);
@@ -67,6 +96,7 @@ const authTryCatch = async <T>({
     const response = (await request.json()) as T;
     return { success: true, error: null, data: response };
   } catch (e) {
+    isRefreshing = false;
     const message = e instanceof Error ? e.message : "unexpected error";
     console.error("An error occured, " + message);
     return { error: message, success: false, data: null };

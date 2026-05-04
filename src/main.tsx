@@ -5,6 +5,8 @@ import { routeTree } from "./routeTree.gen";
 import "./index.css";
 import NotFound from "@/components/NotFound";
 import AuthContextProvider from "./contexts/AuthContext";
+import { Toaster } from "react-hot-toast";
+import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 
 const router = createRouter({
   routeTree,
@@ -21,13 +23,18 @@ declare module "@tanstack/react-router" {
   }
 }
 
+const queryClient = new QueryClient();
+
 const rootElement = document.getElementById("root")!;
 if (!rootElement.innerHTML) {
   const root = ReactDOM.createRoot(rootElement);
   root.render(
     <StrictMode>
       <AuthContextProvider>
-        <RouterProvider router={router} />
+        <QueryClientProvider client={queryClient}>
+          <Toaster toastOptions={{ duration: 500 }} />
+          <RouterProvider router={router} />
+        </QueryClientProvider>
       </AuthContextProvider>
     </StrictMode>,
   );

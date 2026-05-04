@@ -8,7 +8,7 @@ class StorageService {
     return window.localStorage.getItem(key);
   }
 
-  remvoeItem(key: string): void {
+  removeItem(key: string): void {
     window.localStorage.removeItem(key);
   }
 }

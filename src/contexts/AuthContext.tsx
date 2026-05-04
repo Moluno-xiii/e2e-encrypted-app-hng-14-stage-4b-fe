@@ -7,8 +7,7 @@ import React, {
   useState,
   type PropsWithChildren,
 } from "react";
-
-// type SetError = Dispatch<SetStateAction<string | null>>;
+import toast from "react-hot-toast";
 
 type AuthContextType = {
   user: User | undefined | null;
@@ -17,29 +16,28 @@ type AuthContextType = {
   logout: () => void;
   refreshToken: () => void;
   privateKey: CryptoKey | undefined;
-  isLoading: boolean;
+  isLoading: LoadingStates;
 };
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+type LoadingStates = "init" | "logout" | null;
 
 const AuthContextProvider: React.FC<PropsWithChildren> = ({ children }) => {
   const [user, setUser] = useState<AuthContextType["user"]>(undefined);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState<LoadingStates>("init");
   const [privateKey, setPrivateKey] = useState<CryptoKey>();
 
   useEffect(() => {
     async function getCurrentUser() {
       try {
-        setIsLoading(true);
         const { data, error, success } =
           await authServiceInstance.getCurrentUser();
         if (!success) throw new Error(error);
         setUser(data);
-        console.log("user gotten", data);
       } catch (e) {
         console.error("error getting user ", e);
         setUser(null);
       } finally {
-        setIsLoading(false);
+        setIsLoading(null);
       }
     }
     getCurrentUser();
@@ -66,7 +64,7 @@ const AuthContextProvider: React.FC<PropsWithChildren> = ({ children }) => {
     const { error, success, data } = await authServiceInstance.register(input);
 
     if (!success) throw new Error(error);
-
+    console.log("register data", data);
     authServiceInstance.setAuthTokens({
       access_token: data.access_token,
       refresh_token: data.refresh_token,
@@ -75,10 +73,12 @@ const AuthContextProvider: React.FC<PropsWithChildren> = ({ children }) => {
   };
 
   const logout = async () => {
-    const { error, success } = await authServiceInstance.logout();
-    if (!success) throw new Error(error);
-
+    setIsLoading("logout");
+    await authServiceInstance.logout();
+    toast.success("Logout succssful");
     authServiceInstance.removeAuthTokens();
+    setIsLoading(null);
+    setUser(null);
   };
 
   const refreshToken = async () => {

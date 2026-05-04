@@ -63,6 +63,7 @@ class AuthService {
       url: endpoints.auth.refresh,
       options: {
         body: JSON.stringify({ refresh_token: this.getTokens().refresh_token }),
+        headers: { "Content-Type": "application/json" },
       },
       method: "POST",
     });
@@ -76,8 +77,8 @@ class AuthService {
   }
 
   removeAuthTokens() {
-    storageServiceInstance.remvoeItem(this.accessTokenKey);
-    storageServiceInstance.remvoeItem(this.refreshTokenKey);
+    storageServiceInstance.removeItem(this.accessTokenKey);
+    storageServiceInstance.removeItem(this.refreshTokenKey);
   }
 
   setAuthTokens({ access_token, refresh_token }: AuthToken) {

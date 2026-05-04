@@ -1,5 +1,5 @@
 {
-  "name": "habit-tracker-pwa-hng-14-stage-2-fe",
+  "name": "whisperpox-e2e-fe",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -11,16 +11,20 @@
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.2.4",
+    "@tanstack/react-query": "^5.100.9",
     "@tanstack/react-router": "^1.168.24",
     "@tanstack/react-router-devtools": "^1.166.13",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
+    "react-hot-toast": "^2.6.0",
+    "react-icons": "^5.6.0",
     "tailwindcss": "^4.2.4"
   },
   "devDependencies": {
     "@babel/core": "^7.29.0",
     "@eslint/js": "^10.0.1",
     "@rolldown/plugin-babel": "^0.2.3",
+    "@tanstack/eslint-plugin-query": "^5.100.9",
     "@tanstack/router-plugin": "^1.167.26",
     "@types/babel__core": "^7.20.5",
     "@types/node": "^24.12.2",

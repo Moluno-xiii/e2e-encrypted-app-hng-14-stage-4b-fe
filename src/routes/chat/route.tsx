@@ -29,14 +29,16 @@ const RouteComponent = () => {
           ) : (
             <div className="flex flex-1 items-center justify-center px-6">
               <div className="max-w-sm text-center">
-                <div className="bg-soft mx-auto mb-5 grid h-14 w-14 place-items-center rounded-full">
-                  <FiMessageSquare size={30} />
+                <div className="border-line text-muted mx-auto mb-6 grid h-12 w-12 place-items-center rounded-md border">
+                  <FiMessageSquare size={20} />
                 </div>
-                <h2 className="text-lg font-semibold tracking-tight">
-                  Select a conversation
+                <p className="label-mono">whisperbox · idle</p>
+                <h2 className="mt-3 text-xl font-medium tracking-[-0.015em]">
+                  Pick a conversation.
                 </h2>
-                <p className="text-muted mt-1.5 text-sm leading-relaxed">
-                  Choose someone from the list, or start a new chat to begin.
+                <p className="text-muted mt-2 text-sm leading-relaxed">
+                  Choose someone from the list — or search to start a new
+                  thread.
                 </p>
               </div>
             </div>

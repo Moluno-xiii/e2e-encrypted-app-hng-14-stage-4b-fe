@@ -7,43 +7,43 @@ html {
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
 :root {
-  --c-page: #f7f7f4;
-  --c-surface: #ffffff;
-  --c-soft: #eeeeea;
-  --c-soft-2: #e0e0db;
+  --c-page: #f4f2eb;
+  --c-surface: #faf8f2;
+  --c-soft: #ece9df;
+  --c-soft-2: #ddd9cb;
 
-  --c-ink: #1a1a1d;
-  --c-muted: #6b6b71;
-  --c-faint: #a3a3a8;
+  --c-ink: #16161a;
+  --c-muted: #65656b;
+  --c-faint: #9d9c98;
 
-  --c-line: #e6e6e1;
-  --c-line-2: #d4d4cf;
+  --c-line: #d9d4c4;
+  --c-line-2: #c2bdab;
 
-  --c-accent: #1a1a1d;
-  --c-online: #22c55e;
-  --c-danger: #ef4444;
+  --c-accent: #16161a;
+  --c-online: #4f7a52;
+  --c-danger: #b53a2c;
 
-  --c-ring: rgba(26, 26, 29, 0.08);
+  --c-ring: rgba(22, 22, 26, 0.08);
 }
 
 [data-theme="dark"] {
-  --c-page: #0c0c0e;
-  --c-surface: #16161a;
-  --c-soft: #1f1f23;
-  --c-soft-2: #2a2a2e;
+  --c-page: #0d0d0f;
+  --c-surface: #141416;
+  --c-soft: #1c1c1f;
+  --c-soft-2: #26262a;
 
-  --c-ink: #fafaf9;
-  --c-muted: #a0a0a5;
-  --c-faint: #6b6b71;
+  --c-ink: #f3f1ea;
+  --c-muted: #98969a;
+  --c-faint: #65646a;
 
-  --c-line: #2a2a2e;
-  --c-line-2: #3a3a3e;
+  --c-line: #25252a;
+  --c-line-2: #36363c;
 
-  --c-accent: #fafaf9;
-  --c-online: #22c55e;
-  --c-danger: #f87171;
+  --c-accent: #f3f1ea;
+  --c-online: #6c9b6f;
+  --c-danger: #d96b5d;
 
-  --c-ring: rgba(250, 250, 249, 0.1);
+  --c-ring: rgba(243, 241, 234, 0.1);
 }
 
 @theme inline {
@@ -63,9 +63,9 @@ html {
   --color-online: var(--c-online);
   --color-danger: var(--c-danger);
 
-  --font-sans: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
-    sans-serif;
-  --font-mono: ui-monospace, "SF Mono", Menlo, monospace;
+  --font-sans: "Instrument Sans", ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
 }
 
 @layer base {
@@ -77,10 +77,21 @@ html {
 
   body {
     font-family: var(--font-sans);
-    font-feature-settings: "ss01", "cv11";
+    font-feature-settings:
+      "ss01",
+      "cv01",
+      "tnum" off;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+    background-image:
+      radial-gradient(
+        circle at 1px 1px,
+        color-mix(in srgb, var(--c-ink) 4%, transparent) 1px,
+        transparent 0
+      );
+    background-size: 4px 4px;
+    background-attachment: fixed;
   }
 
   ::selection {
@@ -108,6 +119,26 @@ html {
   }
 }
 
+/* ─────────────────────────────────────────────────────────
+   Type helpers
+   ───────────────────────────────────────────────────────── */
+
+.label-mono {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--c-faint);
+}
+
+.tnum {
+  font-feature-settings: "tnum";
+}
+
+/* ─────────────────────────────────────────────────────────
+   Motion
+   ───────────────────────────────────────────────────────── */
+
 @keyframes rise {
   from {
     opacity: 0;
@@ -124,6 +155,16 @@ html {
     opacity: 0;
   }
   to {
+    opacity: 1;
+  }
+}
+
+@keyframes blink {
+  0%,
+  60% {
+    opacity: 0.3;
+  }
+  30% {
     opacity: 1;
   }
 }
@@ -154,11 +195,28 @@ html {
   animation: fade 0.5s ease-out backwards;
 }
 
-.shadow-card {
-  box-shadow:
-    0 1px 2px rgba(20, 20, 24, 0.04),
-    0 8px 24px -12px rgba(20, 20, 24, 0.08),
-    0 24px 56px -24px rgba(20, 20, 24, 0.12);
+.dot-pulse > span {
+  animation: blink 1.4s infinite;
+}
+.dot-pulse > span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.dot-pulse > span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+/* ─────────────────────────────────────────────────────────
+   Surfaces
+   ───────────────────────────────────────────────────────── */
+
+.hairline-rule {
+  background-image: linear-gradient(
+    to right,
+    transparent,
+    var(--c-line-2) 12%,
+    var(--c-line-2) 88%,
+    transparent
+  );
 }
 
 .bg-grid {
@@ -181,9 +239,27 @@ html {
   );
 }
 
+/* ─────────────────────────────────────────────────────────
+   Theme switch — fallback for browsers without View Transitions.
+   Chrome/Edge get the native crossfade; Safari/Firefox get a
+   short tween on the tokenised root so the swap isn't jarring.
+   ───────────────────────────────────────────────────────── */
+
+@supports not (view-transition-name: a) {
+  html {
+    transition:
+      background-color 180ms ease,
+      color 180ms ease;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .rise > *,
-  .fade-in {
+  .fade-in,
+  .dot-pulse > span {
     animation: none;
+  }
+  html {
+    transition: none;
   }
 }

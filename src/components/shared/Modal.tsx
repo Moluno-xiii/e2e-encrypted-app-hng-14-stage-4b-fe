@@ -50,10 +50,11 @@ const ModalUI = ({
         onClick={onClose}
         className="bg-ink/30 absolute inset-0 backdrop-blur-sm"
       />
-      <div className="bg-surface border-line shadow-card fade-in relative z-10 w-full max-w-md rounded-2xl border p-6">
+      <div className="bg-surface border-line fade-in relative z-10 w-full max-w-md rounded-xl border p-6">
+        <p className="label-mono">Confirm</p>
         <h2
           id="modal-title"
-          className="text-ink text-lg font-semibold tracking-tight"
+          className="text-ink mt-2 text-lg font-medium tracking-[-0.015em]"
         >
           {title}
         </h2>
@@ -62,11 +63,11 @@ const ModalUI = ({
             {children}
           </div>
         )}
-        <div className="mt-6 flex items-center justify-end gap-2">
+        <div className="mt-7 flex items-center justify-end gap-2">
           <button
             type="button"
             onClick={onClose}
-            className="text-ink border-line hover:bg-soft rounded-lg border px-3.5 py-1.5 text-sm font-medium transition-colors"
+            className="text-ink border-line hover:bg-soft rounded-md border px-3.5 py-1.5 text-sm font-medium transition-colors"
           >
             Cancel
           </button>
@@ -77,9 +78,9 @@ const ModalUI = ({
               await confirmCb();
               onClose();
             }}
-            className="bg-ink text-page hover:bg-ink/90 rounded-lg px-3.5 py-1.5 text-sm font-medium transition-colors disabled:opacity-60"
+            className="bg-ink text-page hover:bg-ink/90 rounded-md px-3.5 py-1.5 text-sm font-medium transition-colors disabled:opacity-60"
           >
-            {isLoading ? "Loading..." : "Confirm"}
+            {isLoading ? "Loading…" : "Confirm"}
           </button>
         </div>
       </div>

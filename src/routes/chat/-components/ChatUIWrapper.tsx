@@ -6,17 +6,24 @@ import useAuth from "@/hooks/useAuth";
 import useDebounce from "@/hooks/useDebounce";
 import type { Conversation, UserSearchResult } from "@/types/messages";
 import { useQueryClient } from "@tanstack/react-query";
-import { Link, useNavigate } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { CiSearch } from "react-icons/ci";
-import { PiSignOut } from "react-icons/pi";
+import { FiLogOut, FiSearch } from "react-icons/fi";
 import ConversationListSkeleton from "./ConversationListSkeleton";
 import SearchResults from "./SearchResults";
 import ConversationList from "./ConversationList";
 import { initials } from "@/lib/utils";
+import Logo from "@/components/Logo";
+import ThemeToggle from "@/components/shared/ThemeToggle";
 
 type Props = {
   hasOpenThread: boolean;
+};
+
+const fingerprint = (publicKey: string | undefined): string => {
+  if (!publicKey) return "";
+  const cleaned = publicKey.replace(/[^a-zA-Z0-9]/g, "");
+  return cleaned.slice(-8).toLowerCase();
 };
 
 const ChatUIWrapper = ({ hasOpenThread }: Props) => {
@@ -73,31 +80,46 @@ const ChatUIWrapper = ({ hasOpenThread }: Props) => {
         hasOpenThread ? "hidden lg:flex" : "flex"
       }`}
     >
-      <header className="flex items-center justify-between px-4 pt-5 pb-3">
-        <Link to="/" className="flex items-center gap-2">
-          <span className="bg-ink h-7 w-7 rounded-full" aria-hidden />
-          <span className="text-base font-semibold tracking-tight">Sealed</span>
-        </Link>
-        <button
-          onClick={() => setIsLogoutModalOpen(true)}
-          className="hover:bg-soft text-muted hover:text-ink grid h-9 w-9 place-items-center rounded-full transition-colors"
-          aria-label="Logout"
-        >
-          <PiSignOut color="red" />
-        </button>
+      <header className="flex items-center justify-between px-4 pt-5 pb-4">
+        <Logo />
+        <div className="flex items-center gap-1">
+          <ThemeToggle />
+          <button
+            onClick={() => setIsLogoutModalOpen(true)}
+            className="text-muted hover:bg-soft hover:text-ink grid h-8 w-8 place-items-center rounded-md transition-colors"
+            aria-label="Sign out"
+          >
+            <FiLogOut size={15} />
+          </button>
+        </div>
       </header>
 
-      <div className="px-4 pb-3">
-        <div className="bg-soft flex items-center gap-2 rounded-lg px-3 py-2">
-          <CiSearch />
+      <div className="px-4 pb-4">
+        <label
+          htmlFor="conversation-search"
+          className="border-line bg-page focus-within:border-ink/40 focus-within:ring-ink/10 flex items-center gap-2 rounded-md border px-3 py-2 transition-[border-color,box-shadow] focus-within:ring-2"
+        >
+          <FiSearch className="text-faint shrink-0" size={14} />
           <input
+            id="conversation-search"
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search people"
+            placeholder="Find someone"
             className="placeholder:text-faint w-full bg-transparent text-sm outline-none"
           />
-        </div>
+        </label>
+      </div>
+
+      <div className="border-line flex items-center justify-between border-y px-5 py-2">
+        <span className="label-mono">
+          {isSearching ? "Search" : "Conversations"}
+        </span>
+        {!isSearching && conversations && conversations.length > 0 && (
+          <span className="label-mono tnum">
+            {String(conversations.length).padStart(2, "0")}
+          </span>
+        )}
       </div>
 
       {isSearching ? (
@@ -108,8 +130,11 @@ const ChatUIWrapper = ({ hasOpenThread }: Props) => {
             Search failed.
           </div>
         ) : !searchResults || searchResults.length === 0 ? (
-          <div className="text-muted flex flex-1 flex-col items-center justify-center px-6 text-center text-sm">
-            No users found for "{debouncedQuery}".
+          <div className="text-muted flex flex-1 flex-col items-center justify-center gap-2 px-6 text-center">
+            <p className="label-mono">no match</p>
+            <p className="text-sm">
+              Nothing found for &ldquo;{debouncedQuery}&rdquo;.
+            </p>
           </div>
         ) : (
           <SearchResults
@@ -124,32 +149,45 @@ const ChatUIWrapper = ({ hasOpenThread }: Props) => {
           Couldn't load conversations.
         </div>
       ) : !conversations || conversations.length === 0 ? (
-        <div className="text-muted flex flex-1 flex-col items-center justify-center px-6 text-center">
-          <p className="text-ink text-sm font-medium">No conversations yet</p>
-          <p className="mt-1 text-xs leading-relaxed">
-            Search for someone to start a chat.
+        <div className="text-muted flex flex-1 flex-col items-center justify-center gap-2 px-6 text-center">
+          <p className="label-mono">empty</p>
+          <p className="text-ink text-sm font-medium tracking-tight">
+            No conversations yet
+          </p>
+          <p className="text-xs leading-relaxed">
+            Search above to find someone.
           </p>
         </div>
       ) : (
         <ConversationList conversations={conversations} unread={unread} />
       )}
 
-      <footer className="border-line flex items-center justify-between border-t px-4 py-3">
-        <div className="flex items-center gap-2.5">
-          <div className="bg-soft-2 grid h-8 w-8 place-items-center rounded-full">
-            <span className="text-ink text-xs font-medium">
-              {initials(user!.display_name)}
-            </span>
+      {user && (
+        <footer className="border-line flex items-center justify-between border-t px-4 py-3.5">
+          <div className="flex min-w-0 items-center gap-2.5">
+            <div className="bg-soft-2 grid h-8 w-8 shrink-0 place-items-center rounded-full">
+              <span className="text-ink text-[11px] font-medium tracking-wide">
+                {initials(user.display_name)}
+              </span>
+            </div>
+            <div className="min-w-0">
+              <p className="text-ink truncate text-sm font-medium tracking-tight">
+                {user.display_name}
+              </p>
+              <p className="label-mono truncate" title="Public key fingerprint">
+                fp · {fingerprint(user.public_key)}
+              </p>
+            </div>
           </div>
-          <span className="text-ink text-sm font-medium">{user?.username}</span>
-        </div>
-      </footer>
+        </footer>
+      )}
+
       <Modal
         isLoading={isLoading === "logout"}
         isOpen={isLogoutModalOpen}
         confirmCb={async () => await logout()}
         onClose={() => setIsLogoutModalOpen(false)}
-        title="Are you sure you want to logout"
+        title="Sign out of WhisperBox?"
       />
     </aside>
   );

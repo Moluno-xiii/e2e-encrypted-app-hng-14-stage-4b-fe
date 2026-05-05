@@ -7,8 +7,8 @@ const ThreadSkeleton = () => (
     aria-busy="true"
     aria-label="Loading conversation"
   >
-    <header className="border-line bg-surface/85 flex items-center gap-3 border-b px-4 py-3 lg:px-6">
-      <div className="bg-soft-2 h-10 w-10 shrink-0 rounded-full" />
+    <header className="border-line bg-surface flex items-center gap-3 border-b px-4 py-3 lg:px-6">
+      <div className="bg-soft-2 h-9 w-9 shrink-0 rounded-full" />
       <div className="min-w-0 flex-1 space-y-2">
         <div className="bg-soft-2 h-3 w-1/4 rounded" />
         <div className="bg-soft h-2.5 w-16 rounded" />

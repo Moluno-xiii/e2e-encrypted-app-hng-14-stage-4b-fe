@@ -7,6 +7,7 @@ import {
   useChildMatches,
 } from "@tanstack/react-router";
 import ChatUIWrapper from "./-components/ChatUIWrapper";
+import { FiMessageSquare } from "react-icons/fi";
 
 const RouteComponent = () => {
   const childMatches = useChildMatches();
@@ -29,19 +30,7 @@ const RouteComponent = () => {
             <div className="flex flex-1 items-center justify-center px-6">
               <div className="max-w-sm text-center">
                 <div className="bg-soft mx-auto mb-5 grid h-14 w-14 place-items-center rounded-full">
-                  <svg
-                    width="22"
-                    height="22"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.8"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="text-muted"
-                  >
-                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-                  </svg>
+                  <FiMessageSquare size={30} />
                 </div>
                 <h2 className="text-lg font-semibold tracking-tight">
                   Select a conversation

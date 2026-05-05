@@ -11,31 +11,9 @@ import { useState } from "react";
 import { CiSearch } from "react-icons/ci";
 import { PiSignOut } from "react-icons/pi";
 import ConversationListSkeleton from "./ConversationListSkeleton";
-
-const formatCount = (n: number): string => (n > 9 ? "9+" : String(n));
-
-const initials = (name: string) =>
-  name
-    .split(" ")
-    .map((p) => p[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
-
-const formatRelative = (iso: string): string => {
-  const date = new Date(iso);
-  const diffMin = Math.floor((Date.now() - date.getTime()) / 60_000);
-  if (diffMin < 1) return "just now";
-  if (diffMin < 60) return `${diffMin}m`;
-  const diffHr = Math.floor(diffMin / 60);
-  if (diffHr < 24) return `${diffHr}h`;
-  const diffDay = Math.floor(diffHr / 24);
-  if (diffDay < 7) return `${diffDay}d`;
-  return date.toLocaleDateString(undefined, {
-    month: "short",
-    day: "numeric",
-  });
-};
+import SearchResults from "./SearchResults";
+import ConversationList from "./ConversationList";
+import { initials } from "@/lib/utils";
 
 type Props = {
   hasOpenThread: boolean;
@@ -134,31 +112,10 @@ const ChatUIWrapper = ({ hasOpenThread }: Props) => {
             No users found for "{debouncedQuery}".
           </div>
         ) : (
-          <ul className="flex-1 overflow-y-auto px-2 pb-4">
-            {searchResults.map((r) => (
-              <li key={r.id}>
-                <button
-                  type="button"
-                  onClick={() => openThread(r)}
-                  className="hover:bg-soft flex w-full items-center gap-3 rounded-lg px-2.5 py-2.5 text-left transition-colors"
-                >
-                  <div className="bg-soft-2 grid h-10 w-10 shrink-0 place-items-center rounded-full">
-                    <span className="text-ink text-sm font-medium">
-                      {initials(r.display_name)}
-                    </span>
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <h3 className="text-ink truncate text-[15px] font-medium tracking-tight">
-                      {r.display_name}
-                    </h3>
-                    <p className="text-muted mt-0.5 truncate text-sm">
-                      @{r.username}
-                    </p>
-                  </div>
-                </button>
-              </li>
-            ))}
-          </ul>
+          <SearchResults
+            openThread={openThread}
+            searchResults={searchResults}
+          />
         )
       ) : isLoadingConversations ? (
         <ConversationListSkeleton />
@@ -174,53 +131,7 @@ const ChatUIWrapper = ({ hasOpenThread }: Props) => {
           </p>
         </div>
       ) : (
-        <ul className="flex-1 overflow-y-auto px-2 pb-4">
-          {conversations.map((c) => {
-            const count = unread?.get(c.user_id) ?? 0;
-            return (
-              <li key={c.user_id}>
-                <Link
-                  to="/chat/$friend_id"
-                  params={{ friend_id: c.user_id }}
-                  activeProps={{ className: "bg-soft" }}
-                  inactiveProps={{ className: "hover:bg-soft" }}
-                  className="flex items-center gap-3 rounded-lg px-2.5 py-2.5 transition-colors"
-                >
-                  <div className="bg-soft-2 grid h-10 w-10 shrink-0 place-items-center rounded-full">
-                    <span className="text-ink text-sm font-medium">
-                      {initials(c.display_name)}
-                    </span>
-                  </div>
-
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-baseline justify-between gap-2">
-                      <h3
-                        className={`text-ink truncate text-[15px] tracking-tight ${
-                          count > 0 ? "font-semibold" : "font-medium"
-                        }`}
-                      >
-                        {c.display_name}
-                      </h3>
-                      <span className="text-faint shrink-0 text-xs">
-                        {formatRelative(c.last_message_at)}
-                      </span>
-                    </div>
-                    <div className="mt-0.5 flex items-center justify-between gap-2">
-                      <p className="text-muted truncate text-sm">
-                        @{c.username}
-                      </p>
-                      {count > 0 && (
-                        <span className="bg-ink text-page inline-flex h-4.5 min-w-4.5 shrink-0 items-center justify-center rounded-full px-1.5 text-[11px] font-medium">
-                          {formatCount(count)}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
+        <ConversationList conversations={conversations} unread={unread} />
       )}
 
       <footer className="border-line flex items-center justify-between border-t px-4 py-3">

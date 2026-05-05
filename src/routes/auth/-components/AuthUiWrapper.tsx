@@ -1,4 +1,5 @@
 import Logo from "@/components/Logo";
+import { FaYCombinator } from "react-icons/fa6";
 
 const AuthWrapperUI = () => {
   return (
@@ -38,8 +39,8 @@ const AuthWrapperUI = () => {
         <div className="fade-in max-w-md space-y-10">
           <div className="space-y-3">
             <span className="border-line bg-surface/70 text-muted inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-medium tracking-wide backdrop-blur-sm">
-              <span className="bg-online inline-block h-1.5 w-1.5 rounded-full" />
-              Built for one-on-one
+              <span className="inline-block h-1.5 w-1.5 rounded-full bg-red-500" />
+              <span className="text-[6px]">Not</span>backed by <FaYCombinator />
             </span>
             <h2 className="text-4xl leading-[1.05] font-semibold tracking-[-0.02em] xl:text-[2.75rem]">
               A calmer way to chat.
@@ -92,7 +93,7 @@ const AuthWrapperUI = () => {
         </div>
 
         <p className="text-faint text-xs">
-          Trusted by people who like to think in private.
+          Trusted by people who like to talk in private.
         </p>
       </aside>
     </>

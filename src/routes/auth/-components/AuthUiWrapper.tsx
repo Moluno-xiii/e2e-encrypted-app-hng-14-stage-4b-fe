@@ -1,4 +1,5 @@
 import Logo from "@/components/Logo";
+import { FaYCombinator } from "react-icons/fa6";
 
 const AuthWrapperUI = () => (
   <aside className="border-line bg-surface relative z-10 hidden flex-col justify-between border-r p-10 lg:flex xl:p-14">
@@ -6,7 +7,12 @@ const AuthWrapperUI = () => (
 
     <div className="fade-in max-w-md space-y-12">
       <div className="space-y-5">
-        <p className="label-mono">A small messenger</p>
+        <span className="border-line bg-page text-muted inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-medium tracking-wide">
+          <span className="inline-block h-1.5 w-1.5 rounded-full bg-red-500" />
+          <span className="text-[6px] leading-none">Not</span>
+          <span>backed by</span>
+          <FaYCombinator aria-label="Y Combinator" />
+        </span>
         <h2 className="text-[40px] leading-[1.04] font-medium tracking-[-0.025em] xl:text-[44px]">
           One-on-one. <br />
           End-to-end.

@@ -48,8 +48,8 @@ const ThemeContextProvider = ({ children }: PropsWithChildren) => {
     applyTheme(theme);
     try {
       window.localStorage.setItem(STORAGE_KEY, theme);
-    } catch {
-      // localStorage may be unavailable (private mode, sandboxed iframe).
+    } catch (e) {
+      console.error(e);
     }
   }, [theme]);
 

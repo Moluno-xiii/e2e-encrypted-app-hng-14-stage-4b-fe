@@ -98,11 +98,11 @@ const RegisterForm = () => {
       <button
         disabled={isLoading || passwordsMismatch}
         type="submit"
-        className={`bg-ink ${
-          (isLoading || passwordsMismatch) && "cursor-not-allowed opacity-50"
-        } text-page hover:bg-ink/90 mt-1 flex w-full items-center justify-center rounded-lg px-4 py-2.5 text-sm font-medium shadow-[0_1px_2px_rgba(20,20,24,0.18),0_4px_12px_-2px_rgba(20,20,24,0.2),inset_0_1px_0_rgba(255,255,255,0.08)] transition-[background-color,transform] active:scale-[0.99]`}
+        className={`bg-ink text-page hover:bg-ink/90 mt-1 flex w-full items-center justify-center rounded-md px-4 py-2.5 text-sm font-medium transition-[background-color,transform] active:scale-[0.99] ${
+          isLoading || passwordsMismatch ? "cursor-not-allowed opacity-50" : ""
+        }`}
       >
-        {isLoading ? "Creating account..." : "Create account"}
+        {isLoading ? "Creating account…" : "Create account"}
       </button>
     </form>
   );

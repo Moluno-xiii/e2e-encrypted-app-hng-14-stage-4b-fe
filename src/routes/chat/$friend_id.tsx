@@ -76,40 +76,48 @@ const RouteComponent = () => {
 
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <header className="border-line bg-surface/85 flex items-center gap-3 border-b px-4 py-3 backdrop-blur lg:px-6">
+      <header className="border-line bg-surface flex items-center gap-3 border-b px-4 py-3 lg:px-6">
         <Link
           to="/chat"
-          className="text-muted hover:text-ink hover:bg-soft -ml-1 grid h-9 w-9 place-items-center rounded-full transition-colors lg:hidden"
+          className="text-muted hover:text-ink hover:bg-soft -ml-1 grid h-9 w-9 place-items-center rounded-md transition-colors lg:hidden"
           aria-label="Back"
         >
-          <FiArrowLeft size={18} />
+          <FiArrowLeft size={17} />
         </Link>
 
-        <div className="bg-soft-2 grid h-10 w-10 shrink-0 place-items-center rounded-full">
-          <span className="text-ink text-sm font-medium">
+        <div className="bg-soft-2 grid h-9 w-9 shrink-0 place-items-center rounded-full">
+          <span className="text-ink text-[11px] font-medium tracking-wide">
             {initials(friendName)}
           </span>
         </div>
 
-        <div className="min-w-0">
-          <h2 className="text-ink truncate text-[15px] font-semibold tracking-tight">
+        <div className="min-w-0 flex-1">
+          <h2 className="text-ink truncate text-[15px] font-semibold tracking-[-0.01em]">
             {friendName}
           </h2>
           {friendUsername && (
             <p className="text-muted truncate text-xs">@{friendUsername}</p>
           )}
         </div>
+
+        <span
+          className="border-line text-muted hidden items-center gap-1.5 rounded-md border px-2 py-1 sm:inline-flex"
+          title="Messages in this thread are end-to-end encrypted"
+        >
+          <FiLock size={11} aria-hidden />
+          <span className="label-mono">e2e</span>
+        </span>
       </header>
 
-      <main className="flex-1 overflow-y-auto px-4 py-6 lg:px-8">
-        <div className="mx-auto max-w-3xl space-y-6">
+      <main className="flex-1 overflow-y-auto px-4 py-7 lg:px-8">
+        <div className="mx-auto max-w-3xl">
           {hasNextPage && (
-            <div className="flex justify-center">
+            <div className="mb-6 flex justify-center">
               <button
                 type="button"
                 disabled={isFetchingNextPage}
                 onClick={() => fetchNextPage()}
-                className="text-muted hover:text-ink border-line hover:bg-soft rounded-full border px-3 py-1 text-xs font-medium transition-colors disabled:opacity-50"
+                className="text-muted hover:text-ink border-line hover:bg-soft rounded-md border px-3 py-1 text-xs font-medium transition-colors disabled:opacity-50"
               >
                 {isFetchingNextPage ? "Loading…" : "Load older"}
               </button>
@@ -117,21 +125,18 @@ const RouteComponent = () => {
           )}
 
           {isError && messages.length === 0 && (
-            <div className="text-muted text-center text-sm">
+            <div className="text-muted py-8 text-center text-sm">
               Couldn't load messages.
             </div>
           )}
 
-          <div className="text-faint flex items-center justify-center gap-1.5 text-xs">
-            <FiLock size={12} aria-hidden />
-            <span>Messages are end-to-end encrypted</span>
-          </div>
-
           {groups.length === 0 && !isError && (
-            <div className="text-muted py-8 text-center text-sm">
-              No messages yet — say hi.
+            <div className="text-muted py-12 text-center">
+              <p className="label-mono">empty thread</p>
+              <p className="mt-2 text-sm">No messages yet — say hi.</p>
             </div>
           )}
+
           <MessageGroups messages={messages} groups={groups} />
         </div>
       </main>

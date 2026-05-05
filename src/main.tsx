@@ -5,6 +5,7 @@ import { routeTree } from "./routeTree.gen";
 import "./index.css";
 import NotFound from "@/components/NotFound";
 import AuthContextProvider from "./contexts/AuthContext";
+import ThemeContextProvider from "./contexts/ThemeContext";
 import { Toaster } from "react-hot-toast";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 
@@ -34,12 +35,14 @@ if (!rootElement.innerHTML) {
   const root = ReactDOM.createRoot(rootElement);
   root.render(
     <StrictMode>
-      <AuthContextProvider>
-        <QueryClientProvider client={queryClient}>
-          <Toaster toastOptions={{ duration: 500 }} />
-          <RouterProvider router={router} />
-        </QueryClientProvider>
-      </AuthContextProvider>
+      <ThemeContextProvider>
+        <AuthContextProvider>
+          <QueryClientProvider client={queryClient}>
+            <Toaster toastOptions={{ duration: 500 }} />
+            <RouterProvider router={router} />
+          </QueryClientProvider>
+        </AuthContextProvider>
+      </ThemeContextProvider>
     </StrictMode>,
   );
 }

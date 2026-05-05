@@ -4,16 +4,16 @@ const Logo = ({ className = "" }: { className?: string }) => (
   <Link
     to="/"
     className={`group inline-flex items-center gap-2.5 ${className}`}
-    aria-label="Sealed home"
+    aria-label="WhisperBox home"
   >
     <span
       aria-hidden
-      className="bg-ink relative grid h-9 w-9 place-items-center rounded-xl shadow-[0_4px_14px_-4px_rgba(20,20,24,0.4),inset_0_1px_0_rgba(255,255,255,0.08)] transition-transform duration-300 group-hover:scale-105"
+      className="bg-ink relative grid h-7 w-7 place-items-center rounded-[6px] transition-transform duration-300 group-hover:-translate-y-px"
     >
-      <span className="bg-page/90 h-1.5 w-1.5 rounded-full" />
+      <span className="bg-page/95 h-px w-3.5 rounded-full" />
     </span>
-    <span className="text-ink text-lg font-semibold tracking-tight">
-      Sealed
+    <span className="text-ink text-[17px] leading-none font-medium tracking-[-0.01em]">
+      Whisper<span className="text-muted">box</span>
     </span>
   </Link>
 );

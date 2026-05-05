@@ -2,16 +2,16 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import LoginForm from "./-components/LoginForm";
 
 const RouteComponent = () => (
-  <div className="rise space-y-6">
-    <header className="space-y-2">
-      <h1 className="text-[26px] leading-tight font-semibold tracking-[-0.02em]">
-        Welcome back
+  <div className="rise space-y-7">
+    <header className="space-y-2.5">
+      <p className="label-mono">Sign in</p>
+      <h1 className="text-[28px] leading-tight font-medium tracking-[-0.025em]">
+        Welcome back.
       </h1>
-      <p className="text-muted text-sm">Sign in to continue to Sealed.</p>
     </header>
     <LoginForm />
-    <div className="border-line relative flex items-center gap-3 border-t pt-5">
-      <p className="text-muted flex-1 text-center text-sm">
+    <div className="border-line border-t pt-5">
+      <p className="text-muted text-center text-sm">
         Don't have an account?{" "}
         <Link
           to="/auth/signup"

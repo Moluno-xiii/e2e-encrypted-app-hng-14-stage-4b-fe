@@ -66,6 +66,9 @@ const authTryCatch = async <T>({
   options,
 }: CustomTryCatchDTO): Promise<SuccessResponse<T> | ErrorResponse> => {
   try {
+    const { access_token, refresh_token } = authServiceInstance.getTokens();
+    if (!access_token || !refresh_token)
+      throw new Error("No tokens, user not authenticated");
     const request = await fetch(url, buildAuthInit(method, options));
 
     if (request.status === 401 && !isRefreshing) {

@@ -1,4 +1,6 @@
 import ProtectedRoute from "@/components/shared/ProtectedRoute";
+import useReceiveMessages from "@/hooks/useReceiveMessages";
+import useWebSocket from "@/hooks/useWebSocket";
 import {
   createFileRoute,
   Outlet,
@@ -9,13 +11,15 @@ import ChatUIWrapper from "./-components/ChatUIWrapper";
 const RouteComponent = () => {
   const childMatches = useChildMatches();
   const hasOpenThread: boolean = childMatches.length > 0;
+  useWebSocket();
+  useReceiveMessages();
 
   return (
     <ProtectedRoute>
-      <div className="bg-page text-ink grid h-dvh w-full grid-cols-1 overflow-hidden lg:grid-cols-[340px_minmax(0,1fr)]">
+      <div className="bg-page text-ink grid h-dvh w-full grid-cols-1 grid-rows-[1fr] overflow-hidden lg:grid-cols-[340px_minmax(0,1fr)]">
         <ChatUIWrapper hasOpenThread={hasOpenThread} />
         <section
-          className={`flex min-w-0 flex-col ${
+          className={`flex min-h-0 min-w-0 flex-col ${
             hasOpenThread ? "flex" : "hidden lg:flex"
           }`}
         >

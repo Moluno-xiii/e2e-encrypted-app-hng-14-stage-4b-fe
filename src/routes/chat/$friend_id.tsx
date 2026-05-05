@@ -1,6 +1,20 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { findThread, type Message } from "@/components/threads";
+import useConversations from "@/hooks/tanstack/useConversations";
+import useMessages from "@/hooks/tanstack/useMessages";
+import useSendMessage from "@/hooks/tanstack/useSendMessage";
+import useAuth from "@/hooks/useAuth";
+import useDecryptedMessages from "@/hooks/useDecryptedMessages";
+import { DecryptionError } from "@/services/EncryptionService";
+import type { Message } from "@/types/messages";
+import { createFileRoute, Link, useLocation } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
+import {
+  useEffect,
+  useState,
+  type FormEvent,
+  type KeyboardEvent,
+} from "react";
+import toast from "react-hot-toast";
+import { FiArrowLeft, FiLock, FiSend } from "react-icons/fi";
 import ThreadSkeleton from "./-components/ThreadSkeleton";
 
 const initials = (name: string) =>
@@ -11,137 +25,164 @@ const initials = (name: string) =>
     .join("")
     .toUpperCase();
 
+const formatTime = (iso: string): string =>
+  new Date(iso).toLocaleTimeString(undefined, {
+    hour: "numeric",
+    minute: "2-digit",
+  });
+
+const formatDay = (iso: string): string => {
+  const date = new Date(iso);
+  const today = new Date();
+  const yesterday = new Date(today);
+  yesterday.setDate(today.getDate() - 1);
+  const sameDay = (a: Date, b: Date) =>
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate();
+  if (sameDay(date, today)) return "Today";
+  if (sameDay(date, yesterday)) return "Yesterday";
+  return date.toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+};
+
 const groupByDate = (messages: Message[]) => {
   const groups: { date: string; items: Message[] }[] = [];
   for (const m of messages) {
+    const day = formatDay(m.created_at);
     const last = groups[groups.length - 1];
-    if (last && last.date === m.date) last.items.push(m);
-    else groups.push({ date: m.date, items: [m] });
+    if (last && last.date === day) last.items.push(m);
+    else groups.push({ date: day, items: [m] });
   }
   return groups;
 };
 
+type FriendInfoState = {
+  friendInfo?: { display_name: string; username: string };
+};
+
 const RouteComponent = () => {
   const { friend_id } = Route.useParams();
-  const thread = findThread(friend_id);
-  if (!thread) throw notFound();
+  const { user, privateKey } = useAuth();
+  const { data: conversations } = useConversations();
+  const friend = conversations?.find((c) => c.user_id === friend_id);
+  const location = useLocation();
+  const stateInfo = (location.state as FriendInfoState | undefined)?.friendInfo;
 
-  const [isLoadingThread, setIsLoadingThread] = useState(true);
+  const {
+    messages,
+    isLoading,
+    isError,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+  } = useMessages(friend_id);
+
+  const decrypted = useDecryptedMessages(messages, privateKey, user?.id);
+  const sendMutation = useSendMessage(friend_id);
+  const [draft, setDraft] = useState("");
+  const queryClient = useQueryClient();
 
   useEffect(() => {
-    setIsLoadingThread(true);
-    const t = setTimeout(() => setIsLoadingThread(false), 400);
-    return () => clearTimeout(t);
-  }, [friend_id]);
+    const reset = () => {
+      queryClient.setQueryData<Map<string, number>>(["unread"], (old) => {
+        if (!old?.has(friend_id)) return old;
+        const next = new Map(old);
+        next.delete(friend_id);
+        return next;
+      });
+    };
+    reset();
+    window.addEventListener("focus", reset);
+    return () => window.removeEventListener("focus", reset);
+  }, [friend_id, queryClient]);
 
-  if (isLoadingThread) return <ThreadSkeleton />;
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    const text = draft.trim();
+    if (!text || sendMutation.isPending) return;
+    sendMutation.mutate(text, {
+      onSuccess: () => setDraft(""),
+      onError: (err) =>
+        toast.error(err instanceof Error ? err.message : "Failed to send"),
+    });
+  };
 
-  const groups = groupByDate(thread.messages);
+  const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSubmit(e);
+    }
+  };
+
+  if (isLoading) return <ThreadSkeleton />;
+
+  const groups = groupByDate(messages);
+  const friendName =
+    friend?.display_name ?? stateInfo?.display_name ?? "Conversation";
+  const friendUsername = friend?.username ?? stateInfo?.username;
 
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <header className="border-line bg-surface/85 flex items-center justify-between gap-3 border-b px-4 py-3 backdrop-blur lg:px-6">
-        <div className="flex min-w-0 items-center gap-3">
-          <Link
-            to="/chat"
-            className="text-muted hover:text-ink hover:bg-soft -ml-1 grid h-9 w-9 place-items-center rounded-full transition-colors lg:hidden"
-            aria-label="Back"
-          >
-            <svg
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M19 12H5M12 19l-7-7 7-7" />
-            </svg>
-          </Link>
+      <header className="border-line bg-surface/85 flex items-center gap-3 border-b px-4 py-3 backdrop-blur lg:px-6">
+        <Link
+          to="/chat"
+          className="text-muted hover:text-ink hover:bg-soft -ml-1 grid h-9 w-9 place-items-center rounded-full transition-colors lg:hidden"
+          aria-label="Back"
+        >
+          <FiArrowLeft size={18} />
+        </Link>
 
-          <div className="relative shrink-0">
-            <div className="bg-soft-2 grid h-10 w-10 place-items-center rounded-full">
-              <span className="text-ink text-sm font-medium">
-                {initials(thread.name)}
-              </span>
-            </div>
-            {thread.online && (
-              <span className="bg-online border-surface absolute right-0 bottom-0 h-2.5 w-2.5 rounded-full border-2" />
-            )}
-          </div>
-
-          <div className="min-w-0">
-            <h2 className="text-ink truncate text-[15px] font-semibold tracking-tight">
-              {thread.name}
-            </h2>
-            <p className="text-muted truncate text-xs">
-              {thread.online ? "Active now" : "Last seen recently"}
-            </p>
-          </div>
+        <div className="bg-soft-2 grid h-10 w-10 shrink-0 place-items-center rounded-full">
+          <span className="text-ink text-sm font-medium">
+            {initials(friendName)}
+          </span>
         </div>
 
-        <div className="flex items-center gap-1">
-          <button
-            className="hover:bg-soft text-muted hover:text-ink grid h-9 w-9 place-items-center rounded-full transition-colors"
-            aria-label="Voice call"
-            title="Voice call"
-          >
-            <svg
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
-            </svg>
-          </button>
-          <button
-            className="hover:bg-soft text-muted hover:text-ink grid h-9 w-9 place-items-center rounded-full transition-colors"
-            aria-label="More"
-            title="More"
-          >
-            <svg
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <circle cx="12" cy="12" r="1" />
-              <circle cx="19" cy="12" r="1" />
-              <circle cx="5" cy="12" r="1" />
-            </svg>
-          </button>
+        <div className="min-w-0">
+          <h2 className="text-ink truncate text-[15px] font-semibold tracking-tight">
+            {friendName}
+          </h2>
+          {friendUsername && (
+            <p className="text-muted truncate text-xs">@{friendUsername}</p>
+          )}
         </div>
       </header>
 
       <main className="flex-1 overflow-y-auto px-4 py-6 lg:px-8">
         <div className="mx-auto max-w-3xl space-y-6">
+          {hasNextPage && (
+            <div className="flex justify-center">
+              <button
+                type="button"
+                disabled={isFetchingNextPage}
+                onClick={() => fetchNextPage()}
+                className="text-muted hover:text-ink border-line hover:bg-soft rounded-full border px-3 py-1 text-xs font-medium transition-colors disabled:opacity-50"
+              >
+                {isFetchingNextPage ? "Loading…" : "Load older"}
+              </button>
+            </div>
+          )}
+
+          {isError && messages.length === 0 && (
+            <div className="text-muted text-center text-sm">
+              Couldn't load messages.
+            </div>
+          )}
+
           <div className="text-faint flex items-center justify-center gap-1.5 text-xs">
-            <svg
-              width="12"
-              height="12"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-            </svg>
+            <FiLock size={12} aria-hidden />
             <span>Messages are end-to-end encrypted</span>
           </div>
+
+          {groups.length === 0 && !isError && (
+            <div className="text-muted py-8 text-center text-sm">
+              No messages yet — say hi.
+            </div>
+          )}
 
           {groups.map((group) => (
             <section key={group.date} className="space-y-4">
@@ -152,32 +193,40 @@ const RouteComponent = () => {
               </div>
 
               {group.items.map((m, i) => {
+                const fromSelf = m.from_user_id === user?.id;
                 const prev = group.items[i - 1];
-                const isGrouped = prev && prev.fromSelf === m.fromSelf;
+                const isGrouped = prev && prev.from_user_id === m.from_user_id;
+                const text = decrypted.get(m.id);
+                const decryptFailed = text instanceof DecryptionError;
+                const display = decryptFailed
+                  ? "⚠ Could not decrypt"
+                  : (text ?? "…");
 
                 return (
                   <div
                     key={m.id}
                     className={`flex ${
-                      m.fromSelf ? "justify-end" : "justify-start"
+                      fromSelf ? "justify-end" : "justify-start"
                     } ${isGrouped ? "mt-1" : "mt-3"}`}
                   >
                     <div
                       className={`flex max-w-[78%] flex-col gap-1 sm:max-w-[68%] ${
-                        m.fromSelf ? "items-end" : "items-start"
+                        fromSelf ? "items-end" : "items-start"
                       }`}
                     >
                       <div
                         className={`px-3.5 py-2 text-[15px] leading-relaxed ${
-                          m.fromSelf
-                            ? "bg-ink text-page rounded-2xl rounded-br-md"
-                            : "bg-soft text-ink rounded-2xl rounded-bl-md"
+                          decryptFailed
+                            ? "border-danger/20 bg-danger/10 text-danger rounded-2xl border"
+                            : fromSelf
+                              ? "bg-ink text-page rounded-2xl rounded-br-md"
+                              : "bg-soft text-ink rounded-2xl rounded-bl-md"
                         }`}
                       >
-                        {m.body}
+                        {display}
                       </div>
                       <span className="text-faint px-1 text-[11px]">
-                        {m.time}
+                        {formatTime(m.created_at)}
                       </span>
                     </div>
                   </div>
@@ -191,55 +240,26 @@ const RouteComponent = () => {
       <footer className="border-line bg-surface border-t px-4 py-3 lg:px-6">
         <form
           className="mx-auto flex max-w-3xl items-end gap-2"
-          onSubmit={(e) => e.preventDefault()}
+          onSubmit={handleSubmit}
         >
-          <button
-            type="button"
-            className="hover:bg-soft text-muted hover:text-ink grid h-10 w-10 shrink-0 place-items-center rounded-full transition-colors"
-            aria-label="Attach"
-            title="Attach"
-          >
-            <svg
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" />
-            </svg>
-          </button>
-
           <div className="bg-soft focus-within:ring-ink/15 flex flex-1 items-end gap-2 rounded-2xl px-4 py-2.5 transition-shadow focus-within:ring-2">
             <textarea
               rows={1}
-              placeholder={`Message ${thread.name.split(" ")[0]}`}
-              className="placeholder:text-faint max-h-32 w-full resize-none bg-transparent text-[15px] leading-relaxed outline-none"
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder={`Message ${friendName.split(" ")[0]}`}
+              className="placeholder:text-faint field-sizing-content max-h-32 w-full resize-none bg-transparent text-[15px] leading-relaxed outline-none"
             />
           </div>
 
           <button
             type="submit"
-            className="bg-ink text-page hover:bg-ink/90 grid h-10 w-10 shrink-0 place-items-center rounded-full transition-colors"
+            disabled={!draft.trim() || sendMutation.isPending}
+            className="bg-ink text-page hover:bg-ink/90 grid h-10 w-10 shrink-0 place-items-center rounded-full transition-colors disabled:cursor-not-allowed disabled:opacity-50"
             aria-label="Send"
-            title="Send"
           >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M22 2 11 13" />
-              <path d="m22 2-7 20-4-9-9-4 20-7z" />
-            </svg>
+            <FiSend size={16} />
           </button>
         </form>
       </footer>

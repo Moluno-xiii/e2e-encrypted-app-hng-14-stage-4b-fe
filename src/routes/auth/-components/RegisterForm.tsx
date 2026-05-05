@@ -28,11 +28,11 @@ const RegisterForm = () => {
         throw new Error("Both passwords should match");
       setError(null);
       setIsLoading(true);
-      const keyMaterial =
+      const { material, privateKey } =
         await encryptionServiceInstance.buildRegistrationKeyMaterial(
           data.password,
         );
-      await register({ ...data, ...keyMaterial });
+      await register({ ...data, ...material }, privateKey);
     } catch (e) {
       const errMessage = e instanceof Error ? e.message : "unexpected error";
       setError(errMessage);

@@ -11,13 +11,8 @@ import storageServiceInstance from "./StorageService";
 import endpoints from "@/constants/endpoints";
 
 class AuthService {
-  private readonly accessTokenKey;
-  private readonly refreshTokenKey;
-
-  constructor() {
-    this.accessTokenKey = "access_token";
-    this.refreshTokenKey = "refresh_token";
-  }
+  private readonly accessTokenKey = "access_token";
+  private readonly refreshTokenKey = "refresh_token";
 
   login(body: LoginDTO) {
     return customTryCatch<AuthSuccessType>({

@@ -3,8 +3,6 @@ import { authTryCatch } from "@/lib/customFetch";
 import type { PublicKeyResponse, UserSearchResult } from "@/types/messages";
 
 class UserService {
-  constructor() {}
-
   searchUsers(query: string) {
     return authTryCatch<UserSearchResult[]>({
       url: endpoints.users.search(query),

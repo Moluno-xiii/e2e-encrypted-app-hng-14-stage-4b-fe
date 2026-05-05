@@ -21,8 +21,6 @@ class WebSocketService {
   private intentionalClose = false;
   private reconnectTimer: number | null = null;
 
-  constructor() {}
-
   connect(token: string): void {
     if (this.socket && this.socket.readyState !== WebSocket.CLOSED) return;
     this.intentionalClose = false;

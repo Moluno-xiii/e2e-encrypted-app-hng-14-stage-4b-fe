@@ -27,7 +27,13 @@ const MessageGroups = ({
             const prev = group.items[i - 1];
             const text = decrypted.get(m.id);
             return (
-              <MessageGroup m={m} prev={prev} text={text} userId={user?.id} />
+              <MessageGroup
+                key={m.id}
+                m={m}
+                prev={prev}
+                text={text}
+                userId={user?.id}
+              />
             );
           })}
         </li>

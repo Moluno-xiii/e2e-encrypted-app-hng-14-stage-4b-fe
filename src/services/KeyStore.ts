@@ -3,8 +3,6 @@ import { createStore, del, get, set } from "idb-keyval";
 const store = createStore("whisperbox-keys", "private-keys");
 
 class KeyStore {
-  constructor() {}
-
   async put(userId: string, privateKey: CryptoKey): Promise<void> {
     await set(userId, privateKey, store);
   }

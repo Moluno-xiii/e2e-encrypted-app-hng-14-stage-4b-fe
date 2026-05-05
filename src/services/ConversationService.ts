@@ -7,8 +7,6 @@ import type {
 } from "@/types/messages";
 
 class ConversationService {
-  constructor() {}
-
   listConversations() {
     return authTryCatch<Conversation[]>({
       url: endpoints.conversations.list,

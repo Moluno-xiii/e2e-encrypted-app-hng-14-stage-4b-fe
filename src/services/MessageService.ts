@@ -3,8 +3,6 @@ import { authTryCatch } from "@/lib/customFetch";
 import type { Message, SendMessageDTO } from "@/types/messages";
 
 class MessageService {
-  constructor() {}
-
   sendOffline(body: SendMessageDTO) {
     return authTryCatch<Message>({
       url: endpoints.messages.send,

@@ -1,5 +1,4 @@
 class StorageService {
-  constructor() {}
   setItem(key: string, value: string) {
     window.localStorage.setItem(key, value);
   }

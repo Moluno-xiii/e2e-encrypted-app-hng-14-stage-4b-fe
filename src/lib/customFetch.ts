@@ -29,7 +29,6 @@ const customTryCatch = async <T>({
     const request = await fetch(url, { method, ...options });
     if (!request.ok) {
       const errorText = await request.text();
-      console.log("request no okay", errorText);
       if (request.status === 401) {
         const parsed = JSON.parse(errorText) as { detail: string };
         throw new Error(parsed.detail);
@@ -39,9 +38,8 @@ const customTryCatch = async <T>({
     const response = (await request.json()) as T;
     return { success: true, error: null, data: response };
   } catch (e) {
-    console.error("request fail", e);
     const message = e instanceof Error ? e.message : "unexpected error";
-    console.error("An error occured, " + message);
+    console.error("Request failed:", message);
     return { error: message, success: false, data: null };
   }
 };
@@ -101,7 +99,7 @@ const authTryCatch = async <T>({
   } catch (e) {
     isRefreshing = false;
     const message = e instanceof Error ? e.message : "unexpected error";
-    console.error("An error occured, " + message);
+    console.error("Authenticated request failed:", message);
     return { error: message, success: false, data: null };
   }
 };

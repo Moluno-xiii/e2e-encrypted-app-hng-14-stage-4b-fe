@@ -1,5 +1,6 @@
 import authServiceInstance from "@/services/AuthService";
 import encryptionServiceInstance from "@/services/EncryptionService";
+import keyStoreInstance from "@/services/KeyStore";
 import type { LoginDTO, RegisterDTO, User } from "@/types/auth";
 import React, {
   createContext,
@@ -11,7 +12,7 @@ import toast from "react-hot-toast";
 
 type AuthContextType = {
   user: User | undefined | null;
-  register: (input: RegisterDTO) => void;
+  register: (input: RegisterDTO, privateKey: CryptoKey) => void;
   login: (input: LoginDTO) => void;
   logout: () => void;
   refreshToken: () => void;
@@ -27,12 +28,14 @@ const AuthContextProvider: React.FC<PropsWithChildren> = ({ children }) => {
   const [privateKey, setPrivateKey] = useState<CryptoKey>();
 
   useEffect(() => {
-    async function getCurrentUser() {
+    async function hydrateSession() {
       try {
         const { data, error, success } =
           await authServiceInstance.getCurrentUser();
         if (!success) throw new Error(error);
         setUser(data);
+        const storedKey = await keyStoreInstance.get(data.id);
+        if (storedKey) setPrivateKey(storedKey);
       } catch (e) {
         console.error("error getting user ", e);
         setUser(null);
@@ -40,7 +43,7 @@ const AuthContextProvider: React.FC<PropsWithChildren> = ({ children }) => {
         setIsLoading(null);
       }
     }
-    getCurrentUser();
+    hydrateSession();
   }, []);
 
   const login = async (input: LoginDTO) => {
@@ -53,6 +56,7 @@ const AuthContextProvider: React.FC<PropsWithChildren> = ({ children }) => {
       data.user.pbkdf2_salt,
     );
     setPrivateKey(privateKey);
+    await keyStoreInstance.put(data.user.id, privateKey);
     authServiceInstance.setAuthTokens({
       access_token: data.access_token,
       refresh_token: data.refresh_token,
@@ -60,11 +64,12 @@ const AuthContextProvider: React.FC<PropsWithChildren> = ({ children }) => {
     setUser(data.user);
   };
 
-  const register = async (input: RegisterDTO) => {
+  const register = async (input: RegisterDTO, newPrivateKey: CryptoKey) => {
     const { error, success, data } = await authServiceInstance.register(input);
-
     if (!success) throw new Error(error);
-    console.log("register data", data);
+
+    setPrivateKey(newPrivateKey);
+    await keyStoreInstance.put(data.user.id, newPrivateKey);
     authServiceInstance.setAuthTokens({
       access_token: data.access_token,
       refresh_token: data.refresh_token,
@@ -74,9 +79,12 @@ const AuthContextProvider: React.FC<PropsWithChildren> = ({ children }) => {
 
   const logout = async () => {
     setIsLoading("logout");
+    const currentUserId = user?.id;
     await authServiceInstance.logout();
     toast.success("Logout succssful");
     authServiceInstance.removeAuthTokens();
+    if (currentUserId) await keyStoreInstance.clear(currentUserId);
+    setPrivateKey(undefined);
     setIsLoading(null);
     setUser(null);
   };

@@ -1,3 +1,5 @@
+import type { MessagePayload } from "@/types/messages";
+
 type KeyMaterial = {
   public_key: string;
   wrapped_private_key: string;
@@ -9,6 +11,13 @@ const PBKDF2_SALT_BYTES = 16;
 const RSA_MODULUS_LENGTH = 2048;
 const AES_GCM_LENGTH = 256;
 const AES_GCM_IV_BYTES = 12;
+
+class DecryptionError extends Error {
+  constructor(message?: string) {
+    super(message ?? "Failed to decrypt message");
+    this.name = "DecryptionError";
+  }
+}
 
 class EncryptionService {
   private readonly subtle: SubtleCrypto;
@@ -111,7 +120,9 @@ class EncryptionService {
     );
   }
 
-  async buildRegistrationKeyMaterial(password: string): Promise<KeyMaterial> {
+  async buildRegistrationKeyMaterial(
+    password: string,
+  ): Promise<{ material: KeyMaterial; privateKey: CryptoKey }> {
     const keyPair = await this.generateRSAKeyPair();
     const salt = this.generateSalt();
     const wrappingKey = await this.deriveWrappingKey(password, salt);
@@ -122,9 +133,12 @@ class EncryptionService {
     const publicKey = await this.exportPublicKey(keyPair.publicKey);
 
     return {
-      public_key: publicKey,
-      wrapped_private_key: this.bufferToBase64(wrappedPrivateKey),
-      pbkdf2_salt: this.bufferToBase64(salt),
+      material: {
+        public_key: publicKey,
+        wrapped_private_key: this.bufferToBase64(wrappedPrivateKey),
+        pbkdf2_salt: this.bufferToBase64(salt),
+      },
+      privateKey: keyPair.privateKey,
     };
   }
 
@@ -137,6 +151,67 @@ class EncryptionService {
     const wrappingKey = await this.deriveWrappingKey(password, salt);
     const wrappedPrivateKey = this.base64ToBuffer(wrappedPrivateKeyBase64);
     return this.unwrapPrivateKey(wrappedPrivateKey, wrappingKey);
+  }
+
+  async encryptMessage(
+    plaintext: string,
+    recipientPublicKey: CryptoKey,
+    ownPublicKey: CryptoKey,
+  ): Promise<MessagePayload> {
+    const aesKey = await this.subtle.generateKey(
+      { name: "AES-GCM", length: AES_GCM_LENGTH },
+      true,
+      ["encrypt", "decrypt"],
+    );
+    const iv = window.crypto.getRandomValues(new Uint8Array(AES_GCM_IV_BYTES));
+    const ciphertext = await this.subtle.encrypt(
+      { name: "AES-GCM", iv },
+      aesKey,
+      new TextEncoder().encode(plaintext),
+    );
+    const aesKeyRaw = await this.subtle.exportKey("raw", aesKey);
+    const [encryptedKey, encryptedKeyForSelf] = await Promise.all([
+      this.subtle.encrypt({ name: "RSA-OAEP" }, recipientPublicKey, aesKeyRaw),
+      this.subtle.encrypt({ name: "RSA-OAEP" }, ownPublicKey, aesKeyRaw),
+    ]);
+    return {
+      ciphertext: this.bufferToBase64(ciphertext),
+      iv: this.bufferToBase64(iv),
+      encryptedKey: this.bufferToBase64(encryptedKey),
+      encryptedKeyForSelf: this.bufferToBase64(encryptedKeyForSelf),
+    };
+  }
+
+  async decryptMessage(
+    payload: MessagePayload,
+    privateKey: CryptoKey,
+    isOwn: boolean,
+  ): Promise<string> {
+    try {
+      const wrappedAesKey = isOwn
+        ? payload.encryptedKeyForSelf
+        : payload.encryptedKey;
+      const aesKeyRaw = await this.subtle.decrypt(
+        { name: "RSA-OAEP" },
+        privateKey,
+        this.base64ToBuffer(wrappedAesKey),
+      );
+      const aesKey = await this.subtle.importKey(
+        "raw",
+        aesKeyRaw,
+        { name: "AES-GCM" },
+        false,
+        ["decrypt"],
+      );
+      const plaintext = await this.subtle.decrypt(
+        { name: "AES-GCM", iv: this.base64ToBuffer(payload.iv) },
+        aesKey,
+        this.base64ToBuffer(payload.ciphertext),
+      );
+      return new TextDecoder().decode(plaintext);
+    } catch (e) {
+      throw new DecryptionError(e instanceof Error ? e.message : undefined);
+    }
   }
 
   bufferToBase64(buffer: ArrayBuffer | ArrayBufferView): string {
@@ -163,4 +238,5 @@ class EncryptionService {
 
 const encryptionServiceInstance = new EncryptionService();
 export default encryptionServiceInstance;
+export { DecryptionError };
 export type { KeyMaterial };

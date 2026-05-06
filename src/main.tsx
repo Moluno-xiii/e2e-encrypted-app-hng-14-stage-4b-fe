@@ -24,6 +24,7 @@ declare module "@tanstack/react-router" {
   }
 }
 
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: { refetchOnMount: true, refetchOnWindowFocus: true },

@@ -111,11 +111,16 @@ html {
 
   input:-webkit-autofill,
   input:-webkit-autofill:hover,
-  input:-webkit-autofill:focus {
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active {
     -webkit-text-fill-color: var(--c-ink);
-    -webkit-box-shadow: 0 0 0 1000px var(--c-surface) inset;
+    -webkit-box-shadow: 0 0 0 1000px var(--c-page) inset;
+    box-shadow: 0 0 0 1000px var(--c-page) inset;
     caret-color: var(--c-ink);
-    transition: background-color 9999s ease-in-out 0s;
+    font: inherit;
+    transition:
+      background-color 9999s ease-in-out 0s,
+      color 9999s ease-in-out 0s;
   }
 }
 

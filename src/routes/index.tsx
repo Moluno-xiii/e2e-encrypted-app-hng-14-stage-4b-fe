@@ -40,12 +40,14 @@ const RouteComponent = () => (
         <div className="flex items-center gap-1.5">
           <ThemeToggle />
           <Link
+            preload="viewport"
             to="/auth/login"
             className="text-ink hidden rounded-md px-3 py-1.5 text-sm font-medium hover:underline sm:inline-flex"
           >
             Sign in
           </Link>
           <Link
+            preload="viewport"
             to="/auth/signup"
             className="bg-ink text-page hover:bg-ink/90 inline-flex items-center gap-1.5 rounded-md px-3.5 py-1.5 text-sm font-medium transition-colors"
           >
@@ -59,7 +61,7 @@ const RouteComponent = () => (
     <section className="px-6 pt-24 pb-20 lg:px-8 lg:pt-36 lg:pb-24">
       <div className="rise mx-auto max-w-3xl">
         <p className="label-mono text-center">Whisperbox · v0.1</p>
-        <h1 className="mt-6 text-center text-[44px] leading-[1.02] font-medium tracking-[-0.025em] sm:text-[56px] lg:text-[68px]">
+        <h1 className="mt-6 text-center text-[44px] leading-[1.02] font-medium tracking-tight sm:text-[56px] lg:text-[68px]">
           Private messages, <br className="hidden sm:block" />
           read by no one else.
         </h1>
@@ -87,10 +89,7 @@ const RouteComponent = () => (
 
     <HomePagePreview />
 
-    <section
-      id="features"
-      className="border-line border-y px-6 py-24 lg:px-8"
-    >
+    <section id="features" className="border-line border-y px-6 py-24 lg:px-8">
       <div className="mx-auto max-w-5xl">
         <p className="label-mono">What's inside</p>
         <h2 className="mt-3 max-w-2xl text-3xl font-medium tracking-[-0.02em] sm:text-4xl">

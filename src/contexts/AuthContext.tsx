@@ -1,7 +1,9 @@
+import useCurrentUser from "@/hooks/tanstack/useCurrentUser";
 import authServiceInstance from "@/services/AuthService";
 import encryptionServiceInstance from "@/services/EncryptionService";
 import keyStoreInstance from "@/services/KeyStore";
 import type { LoginDTO, RegisterDTO, User } from "@/types/auth";
+import { useQuery } from "@tanstack/react-query";
 import React, {
   createContext,
   useEffect,
@@ -10,7 +12,7 @@ import React, {
 } from "react";
 import toast from "react-hot-toast";
 
-type AuthContextType = {
+export type AuthContextType = {
   user: User | undefined | null;
   register: (input: RegisterDTO, privateKey: CryptoKey) => void;
   login: (input: LoginDTO) => void;
@@ -23,7 +25,8 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 type LoadingStates = "init" | "logout" | null;
 
 const AuthContextProvider: React.FC<PropsWithChildren> = ({ children }) => {
-  const [user, setUser] = useState<AuthContextType["user"]>(undefined);
+  const { data } = useQuery(useCurrentUser());
+  const [user, setUser] = useState<AuthContextType["user"]>(data);
   const [isLoading, setIsLoading] = useState<LoadingStates>("init");
   const [privateKey, setPrivateKey] = useState<CryptoKey>();
 

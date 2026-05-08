@@ -25,7 +25,7 @@ const Field = ({
       id={name}
       name={name}
       type={type}
-      className={`border-line bg-page placeholder:text-faint focus:border-ink/40 focus:ring-ink/10 block w-full rounded-md border px-3.5 py-2.5 text-[15px] outline-none transition-[border-color,box-shadow] focus:ring-2 ${className}`}
+      className={`border-line bg-page placeholder:text-faint focus:border-ink/40 focus:ring-ink/10 block w-full rounded-md border px-3.5 py-2.5 text-[15px] transition-[border-color,box-shadow] outline-none focus:ring-2 ${className}`}
       {...rest}
     />
   </div>

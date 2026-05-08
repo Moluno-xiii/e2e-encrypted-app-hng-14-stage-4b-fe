@@ -1,22 +1,11 @@
-import FullScreenLoader from "@/components/FullScreenLoader";
 import Logo from "@/components/Logo";
 import ThemeToggle from "@/components/shared/ThemeToggle";
-import useAuth from "@/hooks/useAuth";
-import { createFileRoute, Outlet, useNavigate } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import AuthWrapperUI from "./-components/AuthUiWrapper";
+import queryCurrentUser from "@/hooks/tanstack/useCurrentUser";
+import FullScreenLoader from "@/components/FullScreenLoader";
 
 const RouteComponent = () => {
-  const { user, isLoading } = useAuth();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (user === undefined) return;
-    if (user) navigate({ to: "/chat", replace: true });
-  }, [user, navigate]);
-
-  if (isLoading || user) return <FullScreenLoader />;
-
   return (
     <div className="bg-page text-ink relative grid min-h-dvh w-full grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
       <AuthWrapperUI />
@@ -38,4 +27,11 @@ const RouteComponent = () => {
 
 export const Route = createFileRoute("/auth")({
   component: RouteComponent,
+  beforeLoad: async ({ context }) => {
+    const user = await context.queryClient.ensureQueryData(queryCurrentUser());
+    if (user) {
+      throw redirect({ to: "/chat" });
+    }
+  },
+  pendingComponent: FullScreenLoader,
 });

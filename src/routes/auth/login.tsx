@@ -5,7 +5,7 @@ const RouteComponent = () => (
   <div className="rise space-y-7">
     <header className="space-y-2.5">
       <p className="label-mono">Sign in</p>
-      <h1 className="text-[28px] leading-tight font-medium tracking-[-0.025em]">
+      <h1 className="text-[28px] leading-tight font-medium tracking-tight">
         Welcome back.
       </h1>
     </header>

@@ -30,7 +30,7 @@ const RouteComponent = () => {
         ) : (
           <div className="flex flex-1 items-center justify-center px-6">
             <div className="max-w-sm text-center">
-              <div className="border-line text-muted pace-items-center mx-auto mb-6 grid h-12 w-12 rounded-md border">
+              <div className="border-line text-muted mx-auto mb-6 grid h-12 w-12 place-items-center rounded-md border">
                 <FiMessageSquare size={20} />
               </div>
               <p className="label-mono">whisperbox · idle</p>

@@ -1,15 +1,11 @@
-import useCurrentUser from "@/hooks/tanstack/useCurrentUser";
+import queryCurrentUser from "@/hooks/tanstack/useCurrentUser";
 import authServiceInstance from "@/services/AuthService";
 import encryptionServiceInstance from "@/services/EncryptionService";
 import keyStoreInstance from "@/services/KeyStore";
 import type { LoginDTO, RegisterDTO, User } from "@/types/auth";
-import { useQuery } from "@tanstack/react-query";
-import React, {
-  createContext,
-  useEffect,
-  useState,
-  type PropsWithChildren,
-} from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { router } from "@/main";
+import React, { createContext, useState, type PropsWithChildren } from "react";
 import toast from "react-hot-toast";
 
 export type AuthContextType = {
@@ -22,32 +18,17 @@ export type AuthContextType = {
   isLoading: LoadingStates;
 };
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-type LoadingStates = "init" | "logout" | null;
+type LoadingStates = "logout" | null;
 
 const AuthContextProvider: React.FC<PropsWithChildren> = ({ children }) => {
-  const { data } = useQuery(useCurrentUser());
-  const [user, setUser] = useState<AuthContextType["user"]>(data);
-  const [isLoading, setIsLoading] = useState<LoadingStates>("init");
+  const queryClient = useQueryClient();
+  const { data: user, isPending } = useQuery(queryCurrentUser());
+  const [isLoading, setIsLoading] = useState<LoadingStates>(null);
   const [privateKey, setPrivateKey] = useState<CryptoKey>();
 
-  useEffect(() => {
-    async function hydrateSession() {
-      try {
-        const { data, error, success } =
-          await authServiceInstance.getCurrentUser();
-        if (!success) throw new Error(error);
-        setUser(data);
-        const storedKey = await keyStoreInstance.get(data.id);
-        if (storedKey) setPrivateKey(storedKey);
-      } catch (e) {
-        console.error("error getting user ", e);
-        setUser(null);
-      } finally {
-        setIsLoading(null);
-      }
-    }
-    hydrateSession();
-  }, []);
+  const setCurrentUser = (next: User | null) => {
+    queryClient.setQueryData(queryCurrentUser().queryKey, next);
+  };
 
   const login = async (input: LoginDTO) => {
     const { error, success, data } = await authServiceInstance.login(input);
@@ -64,7 +45,8 @@ const AuthContextProvider: React.FC<PropsWithChildren> = ({ children }) => {
       access_token: data.access_token,
       refresh_token: data.refresh_token,
     });
-    setUser(data.user);
+    setCurrentUser(data.user);
+    router.navigate({ to: "/chat" });
   };
 
   const register = async (input: RegisterDTO, newPrivateKey: CryptoKey) => {
@@ -77,19 +59,21 @@ const AuthContextProvider: React.FC<PropsWithChildren> = ({ children }) => {
       access_token: data.access_token,
       refresh_token: data.refresh_token,
     });
-    setUser(data.user);
+    setCurrentUser(data.user);
+    router.navigate({ to: "/chat" });
   };
 
   const logout = async () => {
     setIsLoading("logout");
     const currentUserId = user?.id;
     await authServiceInstance.logout();
-    toast.success("Logout succssful");
     authServiceInstance.removeAuthTokens();
     if (currentUserId) await keyStoreInstance.clear(currentUserId);
     setPrivateKey(undefined);
+    setCurrentUser(null);
+    router.navigate({ to: "/auth/login" });
+    toast.success("Logout succssful");
     setIsLoading(null);
-    setUser(null);
   };
 
   const refreshToken = async () => {
@@ -109,7 +93,7 @@ const AuthContextProvider: React.FC<PropsWithChildren> = ({ children }) => {
     logout,
     refreshToken,
     privateKey,
-    isLoading,
+    isLoading: isPending ? null : isLoading,
   };
   return (
     <AuthContext.Provider value={providerReturn}>

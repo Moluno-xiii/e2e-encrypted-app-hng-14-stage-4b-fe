@@ -47,6 +47,7 @@ const AuthContextProvider: React.FC<PropsWithChildren> = ({ children }) => {
     });
     setCurrentUser(data.user);
     router.navigate({ to: "/chat" });
+    toast.success(`Welcome back, ${data.user.display_name}`);
   };
 
   const register = async (input: RegisterDTO, newPrivateKey: CryptoKey) => {
@@ -61,6 +62,7 @@ const AuthContextProvider: React.FC<PropsWithChildren> = ({ children }) => {
     });
     setCurrentUser(data.user);
     router.navigate({ to: "/chat" });
+    toast.success(`Welcome, ${data.user.display_name}`);
   };
 
   const logout = async () => {
@@ -72,7 +74,7 @@ const AuthContextProvider: React.FC<PropsWithChildren> = ({ children }) => {
     setPrivateKey(undefined);
     setCurrentUser(null);
     router.navigate({ to: "/auth/login" });
-    toast.success("Logout succssful");
+    toast.success("Logout successful");
     setIsLoading(null);
   };
 

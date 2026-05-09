@@ -44,7 +44,30 @@ const customTryCatch = async <T>({
   }
 };
 
-let isRefreshing = false;
+type RefreshResult = { success: true } | { success: false; error: string };
+
+let refreshPromise: Promise<RefreshResult> | null = null;
+
+const refreshTokenOnce = (): Promise<RefreshResult> => {
+  if (refreshPromise) return refreshPromise;
+  refreshPromise = (async (): Promise<RefreshResult> => {
+    try {
+      const refresh = await authServiceInstance.refreshToken();
+      if (!refresh.success) {
+        authServiceInstance.removeAuthTokens();
+        return { success: false, error: refresh.error };
+      }
+      authServiceInstance.setAuthTokens({
+        access_token: refresh.data.access_token,
+        refresh_token: authServiceInstance.getTokens().refresh_token,
+      });
+      return { success: true };
+    } finally {
+      refreshPromise = null;
+    }
+  })();
+  return refreshPromise;
+};
 
 const buildAuthInit = (
   method: FetchMethods,
@@ -69,18 +92,9 @@ const authTryCatch = async <T>({
       throw new Error("No tokens, user not authenticated");
     const request = await fetch(url, buildAuthInit(method, options));
 
-    if (request.status === 401 && !isRefreshing) {
-      isRefreshing = true;
-      const refresh = await authServiceInstance.refreshToken();
-      isRefreshing = false;
-      if (!refresh.success) {
-        authServiceInstance.removeAuthTokens();
-        throw new Error(refresh.error);
-      }
-      authServiceInstance.setAuthTokens({
-        access_token: refresh.data.access_token,
-        refresh_token: authServiceInstance.getTokens().refresh_token,
-      });
+    if (request.status === 401) {
+      const refresh = await refreshTokenOnce();
+      if (!refresh.success) throw new Error(refresh.error);
       const retry = await fetch(url, buildAuthInit(method, options));
       if (!retry.ok) {
         const errorText = await retry.text();
@@ -97,7 +111,6 @@ const authTryCatch = async <T>({
     const response = (await request.json()) as T;
     return { success: true, error: null, data: response };
   } catch (e) {
-    isRefreshing = false;
     const message = e instanceof Error ? e.message : "unexpected error";
     console.error("Authenticated request failed:", message);
     return { error: message, success: false, data: null };
